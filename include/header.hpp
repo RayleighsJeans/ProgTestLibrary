@@ -16,7 +16,8 @@
 
 
 // Custom header files.
-#include "../include/distributions.hpp"
+#include "distributions.hpp"
+#include "map.hpp"
 
 
 namespace helper
@@ -134,6 +135,18 @@ void print(const char* name, const std::vector<T>& vector)
 {
   std::cout << ">> " << name << ": ";
   print<T>(vector);
+} // print
+
+
+void print(const char* name, std::string& string)
+{
+  std::cout << ">> " << name << ": " << string << std::endl;
+} // print
+
+
+void print(const std::string& string)
+{
+  std::cout << string << std::endl;
 } // print
 
 

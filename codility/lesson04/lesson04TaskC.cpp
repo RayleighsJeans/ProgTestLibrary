@@ -1,106 +1,73 @@
-#include <cmath>
+#include "../../include/header.hpp"
 
-#include <iostream>
-#include <fstream>
 
-#include <vector>
-#include <array>
-#include <map>
-#include <algorithm>
-#include <cstring>
-#include <bitset>
-
-#include <random>
-#include <limits>
-
-std::string filename = "lesson04TaskC.txt";
-constexpr int maxN = 100000;
+constexpr int N = 10;     // 100000;
 constexpr int limit = 10; // std::numeric_limits<int>::max();
 
-std::vector<int> solution(int N, std::vector<int> &A)
+
+using namespace helper;
+
+
+std::vector<int> solution(int M, std::vector<int>& A)
 {
-    std::vector<int> counters(N, 0);
-    int oldMax = 0;
-    int counterMax = 0;
+  std::vector<int> counters(M, 0);
+  int oldMax = 0;
+  int counterMax = 0;
 
-    auto increase = [&counters, &counterMax](const int x)
-    { counters[x] += 1; counterMax = std::max(counterMax, counters[x]); };
+  auto increase = [&counters, &counterMax](const int x)
+  {
+    counters[x] += 1;
+    counterMax = std::max(counterMax, counters[x]);
+  };
 
-    auto maxCounter = [&counters, &counterMax, &oldMax]()
-    {
-        if (oldMax == counterMax)
-            return;
-        std::fill(counters.begin(), counters.end(), counterMax);
-        oldMax = counterMax;
-    };
+  auto maxCounter = [&counters, &counterMax, &oldMax]()
+  {
+    if (oldMax == counterMax)
+      return;
+    std::fill(counters.begin(), counters.end(), counterMax);
+    oldMax = counterMax;
+  };
 
-    for (size_t i = 0; i < A.size(); i++)
-    {
-        if ((1 <= A[i]) && (A[i] <= N))
-        {
-            increase(A[i] - 1);
-        }
-        else if (A[i] == N + 1)
-        {
-            maxCounter();
-        }
+  for (size_t i = 0; i < A.size(); i++) {
+    if ((1 <= A[i]) && (A[i] <= M)) {
+      increase(A[i] - 1);
     }
-    return counters;
-}
+    else if (A[i] == M + 1) {
+      maxCounter();
+    }
+  }
+  return counters;
+} // solution
+
 
 int main()
 {
-    auto printVector = []<typename T>(auto &name, std::vector<T> &arr)
-    {
-        std::cout << ">> " << name << ": [";
-        for (auto &a : arr)
-        {
-            std::cout << a << ", ";
-        }
-        std::cout << "]." << std::endl;
-    };
+  WriteToFile<int> file(__FILE__);
 
-    std::ofstream file;
-    file.open(filename, std::ios_base::app);
+  RandomGenerator<int> genA(1, N);
 
-    auto write2File = [&file]<typename T>(std::vector<T> outVector)
-    {
-        file << "[";
-        for (size_t it = 0; it < outVector.size(); it++)
-        {
-            file << outVector.at(it);
-            if (it != outVector.size() - 1)
-                file << ", ";
-        }
-        file << "]";
-    };
+  int M = -1;
 
-    std::random_device randDevice;
-    std::mt19937 generator(randDevice());
+  std::vector<int> result;
+  std::vector<int> vector;
 
-    std::uniform_int_distribution<> distributionA(1, maxN);
-    int N = distributionA(generator);
-    const int M = distributionA(generator);
+  Timer t;
+  t.tick();
+  for (int i = 0; i < 10; i++) {
+    int M = genA();
 
-    std::uniform_int_distribution<> distributionB(1, N + 1);
 
-    auto gen = [&distributionB, &generator, &N]()
-    {
-        return distributionB(generator);
-    };
+    RandomGenerator<int> genB(1, M + 1);
+    vector = genB.randomVector(M);
 
-    std::vector<int> rndVector(M);
-    std::generate(rndVector.begin(), rndVector.end(), gen);
+    file(vector);
+    print("vector", vector);
+    result = solution(M, vector);
+    print("result", result);
+    file(result);
+    file.flush();
+  }
+  t.tock();
 
-    //  N = 5;
-    // rndVector = {3, 4, 4, 6, 1, 4, 4};
-
-    printVector("rndVector", rndVector);
-
-    auto res = solution(N, rndVector);
-    printVector("solution", res);
-
-    // write2File(rndVector);
-    // file << std::endl;
-    return 0;
+  return 0;
 } // main
