@@ -7,6 +7,7 @@
 #include <array>
 #include <map>
 #include <memory>
+#include <stack>
 #include <vector>
 
 #include <fstream>
@@ -138,15 +139,24 @@ void print(const char* name, const std::vector<T>& vector)
 } // print
 
 
+template <typename T, typename U>
+void print(const U& prefix, const std::vector<T>& vector)
+{
+  std::cout << ">> " << prefix << ": ";
+  print<T>(vector);
+} // print
+
+
 void print(const char* name, std::string& string)
 {
   std::cout << ">> " << name << ": " << string << std::endl;
 } // print
 
 
-void print(const std::string& string)
+template <typename T>
+void print(const T& prefix, std::string& string)
 {
-  std::cout << string << std::endl;
+  std::cout << ">> " << prefix << ": " << string << std::endl;
 } // print
 
 

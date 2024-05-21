@@ -16,12 +16,19 @@ class CompileTimeMap
 
   constexpr ValueClass operator[](KeyClass key) const { return Get(key); }
 
+  constexpr bool find(KeyClass key) const { return Find(key); };
+
  private:
   constexpr ValueClass Get(KeyClass key, int i = 0) const
   {
     return i == Size             ? KeyNotFound()
            : pairs[i].key == key ? pairs[i].value
                                  : Get(key, i + 1);
+  }
+
+  constexpr bool Find(KeyClass key, int i = 0) const
+  {
+    return i == Size ? false : pairs[i].key == key ? true : Find(key, i + 1);
   }
 
   static ValueClass KeyNotFound() // not constexpr
