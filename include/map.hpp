@@ -4,10 +4,6 @@ template <class KeyClass, class ValueClass, int Size>
 class CompileTimeMap
 {
  public:
-  CompileTimeMap() = default;
-  ~CompileTimeMap() = default;
-
- public:
   struct KeyValuePair
   {
     KeyClass key;
@@ -17,6 +13,7 @@ class CompileTimeMap
   constexpr ValueClass operator[](KeyClass key) const { return Get(key); }
 
   constexpr bool find(KeyClass key) const { return Find(key); };
+
 
  private:
   constexpr ValueClass Get(KeyClass key, int i = 0) const

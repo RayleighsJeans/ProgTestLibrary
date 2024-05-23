@@ -86,3 +86,11 @@ codility/lesson06/lesson06TaskD
 .vscode/settings.json
 codility/lesson07/lesson07TaskA
 codility/lesson07/lesson07TaskA.txt
+.DS_Store
+codility/lesson07/lesson07TaskB
+codility/lesson07/lesson07TaskA.dSYM/Contents/Info.plist
+codility/lesson07/lesson07TaskA.dSYM/Contents/Resources/DWARF/lesson07TaskA
+codility/lesson07/lesson07TaskA.dSYM/Contents/Resources/Relocations/aarch64/lesson07TaskA.yml
+codility/lesson07/lesson07TaskB.dSYM/Contents/Info.plist
+codility/lesson07/lesson07TaskB.dSYM/Contents/Resources/DWARF/lesson07TaskB
+codility/lesson07/lesson07TaskB.dSYM/Contents/Resources/Relocations/aarch64/lesson07TaskB.yml

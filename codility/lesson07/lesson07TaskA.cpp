@@ -67,7 +67,7 @@ int solutionB(std::string& S)
     }
   }
   return stash.empty();
-}
+} // solutionB
 
 
 int solutionC(std::string& S)
@@ -94,7 +94,7 @@ int solutionC(std::string& S)
     return 1;
   else
     return 0;
-}
+} // solutionC
 
 
 int main()
@@ -103,7 +103,9 @@ int main()
   RandomGenerator<int> gen(0, 2);
   RandomGenerator<int> genB(0, 1);
 
+  int result = -1;
   std::string brackets;
+  
   for (auto& s : gen.randomVector(0, N / 2)) {
     brackets.insert(0, std::string{BracketMapL[s]});
     if (genB())
@@ -121,14 +123,16 @@ int main()
   // brackets = "({{({}[]{})}}[]{})"; // 1
   // brackets = "()(()())((()())(()()))"; // 1
 
-  std::cout << ">> brackets:" << brackets << std::endl;
+  print("brackets", brackets);
 
-  int result = -1;
   Timer t;
   t.tick();
+  // result = solution(brackets);
+  // result = solutionB(brackets);
   result = solutionC(brackets);
   t.tock();
+
   print("result", result);
 
   return 0;
-}
+} // main

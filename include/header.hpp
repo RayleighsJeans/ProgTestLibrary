@@ -310,11 +310,47 @@ class RandomGenerator
   std::vector<T> randomVector(const int length)
   {
     std::vector<T> vector(length);
-    for (int i = 0; i < length; i++) {
-      vector[i] = (*this)();
-    }
+    randomVector<T>(vector, m_randomDistribution);
     return vector;
   }; // randomVector
+
+  /// @brief Build a vector of @ref length with elements [0, length]
+  /// @param length The total length of the vector.
+  /// @return A random vector(length).
+  std::vector<T> randomVectorN(const int length)
+  {
+    std::vector<T> vector(length);
+    auto elementDistributionN = RandomDistribution(0, length);
+    randomVector(vector, elementDistributionN);
+    return vector;
+  } // randomVectorN
+
+  /// @brief Build a vector of random length with elements [0, length]
+  /// @return A random vector.
+  std::vector<T> randomVectorN()
+  {
+    int length = (*this)();
+    return randomVectorN(length);
+  } // randomVectorN
+
+  /// @brief Build a vector of random length with elements [0, length-1]
+  /// @return A random vector.
+  std::vector<T> randomVectorN_1()
+  {
+    int length = (*this)();
+    return randomVectorN_1(length);
+  }
+
+  /// @brief Build a vector of
+  /// @param length
+  /// @return
+  std::vector<T> randomVectorN_1(const int length)
+  {
+    std::vector<T> vector(length);
+    auto elementDistributionN_1 = RandomDistribution(0, length - 1);
+    randomVector(vector, elementDistributionN_1);
+    return vector;
+  }
 
 
   /// @brief Build random number vector of random length.
@@ -363,7 +399,16 @@ class RandomGenerator
                           heightDistribution(m_generator));
   }; // random2dVector
 
+
  private:
+  void randomVector(std::vector<T>& vector, RandomDistribution<T>& randDist)
+  {
+    for (int i = 0; i < vector.size(); i++) {
+      vector[i] = randDist(m_generator);
+    }
+  } // randomVector
+
+
   /// @brief Random number distribution for generation given a seed.
   RandomDistribution<T> m_randomDistribution;
   /// @brief Seed generator for random numbers.
@@ -374,7 +419,7 @@ class RandomGenerator
 class Timer
 {
  private:
-  using time = std::chrono::_V2::system_clock::time_point;
+  using time = std::chrono::high_resolution_clock::time_point;
   using clock = std::chrono::high_resolution_clock;
 
 
