@@ -30,9 +30,9 @@ int main()
   vector = gen.randomVector(3, N);
   vector = {-3, 1, 2, -2, 5, 6};
 
-  print("vector", vector);
+  print<char[], int>("vector", vector);
   result = solution(vector);
-  print("result", result);
+  print<char[], int>("result", result);
 
   return 0;
 } // main

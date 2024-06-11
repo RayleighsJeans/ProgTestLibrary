@@ -4,6 +4,9 @@
 constexpr int N = 10;
 
 
+using namespace helper;
+
+
 int solution(int X, std::vector<int>& A)
 {
   std::vector<bool> map(X + 1, false);
@@ -33,7 +36,7 @@ int solutionB(int X, std::vector<int>& A)
     if (map[A[i]])
       continue;
     map[A[i]] = true;
-    if (map.size() == X)
+    if ((int)map.size() == X)
       return i;
   }
   return -1;
@@ -42,9 +45,8 @@ int solutionB(int X, std::vector<int>& A)
 
 int main()
 {
-
-  helper::WriteToFile<int> file(__FILE__);
-  helper::RandomGenerator<int> gen(1, N);
+  WriteToFile<int> file(__FILE__);
+  RandomGenerator<int> gen(1, N);
 
   std::vector<int> vector;
   int X = -1;
@@ -52,20 +54,20 @@ int main()
 
   int result = -1;
 
-  helper::Timer t;
+  Timer t;
   t.tick();
   for (int i = 0; i < 10; i++) {
     X = gen();
     while (M < X)
       M = gen();
 
-    helper::RandomGenerator<int> genB(1, X);
+    RandomGenerator<int> genB(1, X);
     vector = genB.randomVector(M);
-    helper::print("frog goes to", X);
-    helper::print("vector", vector);
+    print<char[], int>("frog goes to", X);
+    print<char[], int>("vector", vector);
 
     result = solution(X, vector);
-    helper::print("frog went at ", result);
+    print<char[], int>("frog went at ", result);
   }
   t.tock();
 

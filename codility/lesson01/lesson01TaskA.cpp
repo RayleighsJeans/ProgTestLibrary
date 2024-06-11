@@ -6,6 +6,9 @@
 constexpr int limit = 10; // std::numeric_limits<int>::max();
 
 
+using namespace helper;
+
+
 int solution(int N)
 {
   int maxGap = 0;
@@ -33,8 +36,8 @@ int solution(int N)
 
 int main()
 {
-  helper::WriteToFile<int> file(__FILE__);
-  helper::RandomGenerator<int> gen(1, limit);
+  WriteToFile<int> file(__FILE__);
+  RandomGenerator<int> gen(1, limit);
 
   int number = 0;
   int res = -1;

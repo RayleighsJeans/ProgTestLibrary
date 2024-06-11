@@ -71,9 +71,9 @@ void print(const std::vector<T>& vector)
 } // print
 
 
-/// @brief
-/// @tparam T
-/// @param value
+/// @brief Print an arbitrary value (type).
+/// @tparam T The value type.
+/// @param value The value.
 template <typename T>
 void print(const T& value)
 {
@@ -112,51 +112,36 @@ void print(const std::vector<std::vector<T>>& vector)
 /// @tparam T Arithmetic data type of vector.
 /// @param name Name to prefix the vector.
 /// @param vector The data container provided to print.
-template <typename T>
-void print(const char* name, const std::vector<std::vector<T>>& vector)
+template <typename U, typename T>
+void print(const U& name, const std::vector<std::vector<T>>& vector)
 {
   std::cout << ">> " << name << ": ";
   print<T>(vector);
 } // print
 
-template <typename T>
-void print(const char* name, const T& value)
+
+/// @brief Print a arbitrary value (type) with a prefix.
+/// @tparam T The value type.
+/// @param name The prefix.
+/// @param value The value.
+template <typename U, typename T>
+void print(const U& name, const T& value)
 {
   std::cout << ">> " << name << ": ";
   print<T>(value);
 } // print
 
 
-/// @brief Printing a name and 1D vector.
-/// @tparam T Arithmetic data type of vector.
-/// @param name Name to prefix the vector.
-/// @param vector The data container provided to print.
-template <typename T>
-void print(const char* name, const std::vector<T>& vector)
-{
-  std::cout << ">> " << name << ": ";
-  print<T>(vector);
-} // print
-
-
-template <typename T, typename U>
+/// @brief Print a arbitrary type value and a 1D vector.
+/// @tparam T The 1D vector type.
+/// @tparam U The prefix type.
+/// @param prefix The prefix.
+/// @param vector The 1D vector.
+template <typename U, typename T>
 void print(const U& prefix, const std::vector<T>& vector)
 {
   std::cout << ">> " << prefix << ": ";
   print<T>(vector);
-} // print
-
-
-void print(const char* name, std::string& string)
-{
-  std::cout << ">> " << name << ": " << string << std::endl;
-} // print
-
-
-template <typename T>
-void print(const T& prefix, std::string& string)
-{
-  std::cout << ">> " << prefix << ": " << string << std::endl;
 } // print
 
 
@@ -175,6 +160,7 @@ class WriteToFile
 
   /// @brief dtor. Close file again.
   ~WriteToFile() { m_file.close(); };
+
 
  private:
   /// @brief Prepare path by remove *.cpp and appending *.txt.
@@ -202,7 +188,6 @@ class WriteToFile
     m_tabs = true;
   } // operator
 
-
   /// @brief operator() overload. Write vector contents to txt.
   /// @param vector The data container.
   void operator()(const std::vector<T>& vector)
@@ -224,9 +209,9 @@ class WriteToFile
     if (m_tabs)
       m_file << "\t\t";
 
-    auto outersize = vector.size();
+    size_t outersize = vector.size();
     m_file << "[";
-    for (int i = 0; i < outersize; i++) {
+    for (size_t i = 0; i < outersize; i++) {
       // Use simple 1D vector writing algo.
       writeVector(vector[i]);
       if (i < outersize - 1)
@@ -237,6 +222,8 @@ class WriteToFile
     m_tabs = true;
   } // operator()
 
+  /// @brief Writing a value to the held file.
+  /// @param value The value.
   void operator()(const T& value)
   {
     if (!m_file.is_open())
@@ -255,6 +242,7 @@ class WriteToFile
     m_file << "\n";
     m_tabs = false;
   } // flush
+
 
  private:
   /// @brief Simple 1D vector writing routine to txt file.
@@ -301,8 +289,7 @@ class RandomGenerator
  public:
   /// @brief Generate a single random number.
   /// @return A single random number.
-  T operator()() { return m_randomDistribution(m_generator); } // operator()
-
+  T operator()() { return m_randomDistribution(m_generator); }; // operator()
 
   /// @brief Build random number vector of given length.
   /// @param length Exact lenght of vector.
@@ -310,7 +297,7 @@ class RandomGenerator
   std::vector<T> randomVector(const int length)
   {
     std::vector<T> vector(length);
-    randomVector<T>(vector, m_randomDistribution);
+    randomVector(vector, m_randomDistribution);
     return vector;
   }; // randomVector
 
@@ -323,7 +310,7 @@ class RandomGenerator
     auto elementDistributionN = RandomDistribution(0, length);
     randomVector(vector, elementDistributionN);
     return vector;
-  } // randomVectorN
+  }; // randomVectorN
 
   /// @brief Build a vector of random length with elements [0, length]
   /// @return A random vector.
@@ -331,7 +318,7 @@ class RandomGenerator
   {
     int length = (*this)();
     return randomVectorN(length);
-  } // randomVectorN
+  }; // randomVectorN
 
   /// @brief Build a vector of random length with elements [0, length-1]
   /// @return A random vector.
@@ -339,7 +326,7 @@ class RandomGenerator
   {
     int length = (*this)();
     return randomVectorN_1(length);
-  }
+  }; // randomVectorN_1
 
   /// @brief Build a vector of
   /// @param length
@@ -350,8 +337,7 @@ class RandomGenerator
     auto elementDistributionN_1 = RandomDistribution(0, length - 1);
     randomVector(vector, elementDistributionN_1);
     return vector;
-  }
-
+  }; // randomVectorN_1
 
   /// @brief Build random number vector of random length.
   /// @param minLength Minimum length of vector.
@@ -364,8 +350,18 @@ class RandomGenerator
     return randomVector(lengthDistribution(m_generator));
   }; // randomVector
 
+  /// @brief Create a random number vector with unique numbers.
+  /// @param length Length of that vector
+  /// @return The created vector.
+  std::vector<T> randomUniqueVector(const int length)
+  {
+    std::vector<T> vector(length);
+    randomUniqueVector(vector, m_randomDistribution);
+    return vector;
+  }; // randomUniqueVector
 
-  /// @brief Build 2D random number vector (vector of vectors) exact length and height.
+  /// @brief Build 2D random number vector (vector of vectors) exact length and
+  /// height.
   /// @param length Minimum length of vector.
   /// @param height Maximum length of vector.
   /// @return The constructed container.
@@ -378,7 +374,6 @@ class RandomGenerator
     }
     return vector;
   }; // random2dVector
-
 
   /// @brief Build 2D random number vector (vector of vectors)
   ///        of random length and height.
@@ -401,13 +396,39 @@ class RandomGenerator
 
 
  private:
+  /// @brief Create a random vector in-place of a provided container and with a
+  /// given distribution.
+  /// @param vector The container to fill.
+  /// @param randDist The distribution from which values are generated.
   void randomVector(std::vector<T>& vector, RandomDistribution<T>& randDist)
   {
-    for (int i = 0; i < vector.size(); i++) {
+    for (size_t i = 0; i < vector.size(); i++) {
       vector[i] = randDist(m_generator);
     }
-  } // randomVector
+  }; // randomVector
 
+  /// @brief Create vector of random, unique numbers in-place of container from
+  /// a given distribution.
+  /// @param vector The provided container (pre-sized).
+  /// @param randDist Th edistribution.
+  void randomUniqueVector(std::vector<T>& vector,
+                          RandomDistribution<T>& randDist)
+  {
+    const size_t N = vector.size();
+    std::map<int, bool> map;
+
+    T number;
+    for (size_t i = 0; i < N; i++) {
+      number = randDist(m_generator);
+
+      while (map.find(number) != map.end()) {
+        number = randDist(m_generator);
+      }
+
+      vector[i] = number;
+      map[number] = true;
+    }
+  }; // randomUniqueVector
 
   /// @brief Random number distribution for generation given a seed.
   RandomDistribution<T> m_randomDistribution;
@@ -416,6 +437,8 @@ class RandomGenerator
 }; // class RandomGenerator
 
 
+/// @brief A helper object that measures and prints the time between tick() and
+/// tock() and holds a lists of points in time.
 class Timer
 {
  private:
@@ -424,12 +447,18 @@ class Timer
 
 
  public:
+  /// @brief ctor. Start the timer.
   Timer() : m_tick(clock::now()) { m_tocks.push_back(m_tick); };
+
+  /// @brief dtor. Nothing.
   ~Timer() = default;
 
 
  public:
+  /// @brief Start the timer (restart if starting point already exists).
   void tick() { m_tick = clock::now(); };
+
+  /// @brief Measure the timer and remember the 'lap time'.
   void tock()
   {
     m_tocks.push_back(clock::now());
@@ -438,11 +467,12 @@ class Timer
                           m_tocks.back() - m_tick))
                         .count();
     std::cout << ">> time past: " << duration << "ms;\n";
-  }
+  } // tock
 
  private:
+  /// @brief The starting point (in time).
   time m_tick;
+  /// @brief List of the stopped timers/lap times.
   std::vector<time> m_tocks;
-
 }; // class Timer
 } // namespace helper

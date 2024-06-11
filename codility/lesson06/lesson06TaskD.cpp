@@ -51,9 +51,9 @@ int main()
   // rndVector = {1, 5, 2, 1, 4, 0};
   // rndVector = {3, 0, 1, 6};
 
-  print("vector", vector);
+  print<char[], int>("vector", vector);
   result = solution(vector);
-  print("result", result);
+  print<char[], int>("result", result);
 
   return 0;
 } // main

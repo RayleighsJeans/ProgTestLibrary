@@ -5,6 +5,9 @@ constexpr int N = 10;
 constexpr int limit = 10; // std::numeric_limits<int>::max();
 
 
+using namespace helper;
+
+
 int solution(int X, int Y, int D)
 {
   if (X >= Y)
@@ -17,8 +20,8 @@ int solution(int X, int Y, int D)
 
 int main()
 {
-  helper::WriteToFile<int> file(__FILE__);
-  helper::RandomGenerator<int> gen(1, limit);
+  WriteToFile<int> file(__FILE__);
+  RandomGenerator<int> gen(1, limit);
 
   std::vector<int> results;
   for (int i = 0; i < 10; i++) {

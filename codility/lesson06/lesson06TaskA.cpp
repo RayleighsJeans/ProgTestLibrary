@@ -52,18 +52,18 @@ int main()
   t.tick();
   for (int i = 0; i < 100; i++) {
     vector = gen.randomVector(0, N);
-    // print("vector", vector);
+    print<char[], int>("vector", vector);
     result = solution(vector);
-    // print("result", result);
+    print<char[], int>("result", result);
   }
   t.tock();
 
   t.tick();
   for (int i = 0; i < 100; i++) {
     vector = gen.randomVector(0, N);
-    // print("vector", vector);
+    print<char[], int>("vector", vector);
     result = solutionB(vector);
-    // print("result", result);
+    print<char[], int>("result", result);
   }
   t.tock();
 

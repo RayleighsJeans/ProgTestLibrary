@@ -7,9 +7,9 @@ using namespace helper;
 constexpr int N = 10; // 100000
 constexpr int M = 5;  // 50000
 
-constexpr helper::CompileTimeMap<char, int, 4> dnaMap{
+constexpr CompileTimeMap<char, int, 4> dnaMap{
   {{'A', 1}, {'C', 2}, {'G', 3}, {'T', 4}}};
-constexpr helper::CompileTimeMap<int, char, 4> invDnaMap{
+constexpr CompileTimeMap<int, char, 4> invDnaMap{
   {{1, 'A'}, {2, 'C'}, {3, 'G'}, {4, 'T'}}};
 
 
@@ -42,7 +42,6 @@ std::vector<int> solution(std::string& S, std::vector<int>& P,
 int main()
 {
   WriteToFile<int> file(__FILE__);
-
   RandomGenerator<int> genAmino(1, 4);
 
   std::vector<int> result;
@@ -69,12 +68,12 @@ int main()
       }
     }
 
-    print("DNA", dna);
-    print("PQ", PQ);
+    print<char[], std::string>("DNA", dna);
+    print<char[], int>("PQ", PQ);
     file(dna.c_str());
     file(PQ);
     result = solution(dna, PQ[0], PQ[1]);
-    print("result", result);
+    print<char[], int>("result", result);
 
     file(result);
     file.flush();

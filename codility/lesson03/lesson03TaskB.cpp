@@ -5,6 +5,9 @@ constexpr int N = 10;
 constexpr int limit = 10; // std::numeric_limits<int>::max();
 
 
+using namespace helper;
+
+
 int solution(std::vector<int>& A)
 {
   if (A.empty())
@@ -24,8 +27,8 @@ int solution(std::vector<int>& A)
 
 int main()
 {
-  helper::WriteToFile<int> file(__FILE__);
-  helper::RandomGenerator<int> gen(1, limit);
+  WriteToFile<int> file(__FILE__);
+  RandomGenerator<int> gen(1, limit);
 
   std::vector<int> vector;
   int result = -1;
@@ -35,16 +38,16 @@ int main()
     for (int i = 1; i <= vector.size(); i++)
       vector[i - 1] = i;
 
-    helper::RandomGenerator<int> genB(0, vector.size() - 1);
+    RandomGenerator<int> genB(0, vector.size() - 1);
     vector.erase(vector.begin() + genB());
 
     std::shuffle(vector.begin(), vector.end(),
                  std::default_random_engine{(std::random_device())()});
-    helper::print("vector", vector);
+    print<char[], int>("vector", vector);
 
     file(vector);
     result = solution(vector);
-    helper::print("result", result);
+    print<char[], int>("result", result);
 
     file(result);
     file.flush();

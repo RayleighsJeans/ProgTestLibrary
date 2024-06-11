@@ -1,21 +1,18 @@
 #include "../../include/header.hpp"
 
 
-constexpr int N = 10; // 200000
+constexpr int N = 2000000; // 100000
 
 
 using namespace helper;
 
 
-constexpr CompileTimeMap<int, char, 3> BracketMapL = {
-  {{0, '{'}, {1, '('}, {2, '['}}};
-constexpr CompileTimeMap<char, int, 3> InvBracketMapL = {
-  {{'{', 0}, {'(', 1}, {'[', 2}}};
-constexpr CompileTimeMap<int, char, 3> BracketMapR = {
-  {{0, '}'}, {1, ')'}, {2, ']'}}};
+constexpr CompileTimeMap<int, char, 3> BracketMapL = {{{0, '('}}};
+constexpr CompileTimeMap<char, int, 3> InvBracketMapL = {{{'(', 0}}};
+constexpr CompileTimeMap<int, char, 3> BracketMapR = {{{0, ')'}}};
 
 
-int solution(std::string& S)
+int solutionA(std::string& S)
 {
   while (S.size() > 0) {
     if (S.size() == 1)
@@ -43,38 +40,9 @@ int solution(std::string& S)
 int solutionB(std::string& S)
 {
   std::vector<char> stash;
-
-  for (size_t i = 0; i < N; i++) {
-    if ((S[i] == '{') || (S[i] == '[') || (S[i] == '(')) {
-      stash.push_back(S[i]);
-    }
-    else {
-      if (stash.empty()) {
-        return false;
-      }
-      char back = stash.back();
-      stash.pop_back();
-      if ((S[i] == ')') && (back != '(')) {
-        return false;
-      }
-      if ((S[i] == ']') && (back != '[')) {
-        return false;
-      }
-      if ((S[i] == '}') && (back != '{')) {
-        return false;
-      }
-    }
-  }
-  return stash.empty();
-} // solutionB
-
-
-int solutionC(std::string& S)
-{
-  std::vector<char> stash;
   for (size_t i = 0; i < S.size(); ++i) {
     char c = S[i];
-    if (('(' == c) || ('{' == c) || ('[' == c)) {
+    if ('(' == c) {
       stash.push_back(c);
     }
     else {
@@ -82,8 +50,7 @@ int solutionC(std::string& S)
         return 0;
 
       char t = stash.back();
-      if ((('}' == c) && ('{' != t)) || ((']' == c) && ('[' != t)) ||
-          ((')' == c) && ('(' != t)))
+      if ((')' == c) && ('(' != t))
         return 0;
       stash.pop_back();
     }
@@ -99,7 +66,7 @@ int solutionC(std::string& S)
 int main()
 {
   WriteToFile<int> file(__FILE__);
-  RandomGenerator<int> gen(0, 2);
+  RandomGenerator<int> gen(0, 1);
   RandomGenerator<int> genB(0, 1);
 
   int result = -1;
@@ -117,19 +84,19 @@ int main()
     }
   }
 
-  // brackets = "{[()()]}"; // 1
-  // brackets = "({{({}[]{})}}[]{})"; // 1
-  // brackets = "()(()())((()())(()()))"; // 1
+  //   brackets = "(()(())())";
+  //   brackets = "())";
 
-  print<char[], std::string>("brackets", brackets);
-
+  //   print<char[], std::string>("brackets", brackets);
   Timer t;
   t.tick();
-  // result = solution(brackets);
-  // result = solutionB(brackets);
-  result = solutionC(brackets);
+  result = solutionA(brackets);
   t.tock();
+  print<char[], int>("result", result);
 
+  t.tick();
+  result = solutionB(brackets);
+  t.tock();
   print<char[], int>("result", result);
 
   return 0;

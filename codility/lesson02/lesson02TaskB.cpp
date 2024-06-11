@@ -5,6 +5,9 @@ constexpr int N = 10;
 constexpr int limit = 10;
 
 
+using namespace helper;
+
+
 int solution(std::vector<int>& A)
 {
   std::unordered_map<int, int> map{};
@@ -23,8 +26,8 @@ int solution(std::vector<int>& A)
 template <typename T>
 std::vector<T> randomPairVector()
 {
-  helper::RandomGenerator<int> gen(1, N);
-  helper::RandomGenerator<int> genB(1, limit);
+  RandomGenerator<int> gen(1, N);
+  RandomGenerator<int> genB(1, limit);
 
   int L = 0;
   while (L % 2 == 0)
@@ -77,14 +80,14 @@ std::vector<T> randomPairVector()
 
 int main()
 {
-  helper::WriteToFile<int> file(__FILE__);
+  WriteToFile<int> file(__FILE__);
 
   std::vector<int> vector;
   int result = -1;
   for (int i = 0; i < 10; i++) {
 
     vector = randomPairVector<int>();
-    helper::print("random vector", vector);
+    print<char[], int>("random vector", vector);
 
     result = solution(vector);
     std::cout << ">> winner is " << result << std::endl;

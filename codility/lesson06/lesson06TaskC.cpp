@@ -36,9 +36,9 @@ int main()
   vector = gen.randomVector(3, N);
   vector = {10, 2, 5, 1, 8, 20};
 
-  print("vector", vector);
+  print<char[], int>("vector", vector);
   result = solution(vector);
-  print("result", result);
+  print<char[], int>("result", result);
 
   return 0;
 } // main

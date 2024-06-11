@@ -22,13 +22,14 @@ int solution(std::vector<int>& A)
 
   for (size_t i = 0; i < A.size() - 1; i++) {
     if (std::abs(A[i + 1] - A[i]) > 1) {
-      if (A[i] + 1 <= 0)
+      if ((A[i] + 1) <= 0) {
         if (A[i + 1] > 1) {
           return 1;
         }
         else {
           continue;
         }
+      }
       return A[i] + 1;
     }
   }
@@ -51,9 +52,9 @@ int main()
     vector = gen.randomVector(1, N);
 
     file(vector);
-    print("vector", vector);
+    print<char[], int>("vector", vector);
     result = solution(vector);
-    print("result", result);
+    print<char[], int>("result", result);
     file(result);
     file.flush();
   }

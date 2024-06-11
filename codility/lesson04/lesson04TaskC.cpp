@@ -43,10 +43,7 @@ std::vector<int> solution(int M, std::vector<int>& A)
 int main()
 {
   WriteToFile<int> file(__FILE__);
-
   RandomGenerator<int> genA(1, N);
-
-  int M = -1;
 
   std::vector<int> result;
   std::vector<int> vector;
@@ -56,14 +53,13 @@ int main()
   for (int i = 0; i < 10; i++) {
     int M = genA();
 
-
     RandomGenerator<int> genB(1, M + 1);
     vector = genB.randomVector(M);
 
     file(vector);
-    print("vector", vector);
+    print<char[], int>("vector", vector);
     result = solution(M, vector);
-    print("result", result);
+    print<char[], int>("result", result);
     file(result);
     file.flush();
   }

@@ -53,9 +53,9 @@ int main()
     vector = gen.randomVector(2, N);
 
     file(vector);
-    print("vector", vector);
+    print<char[], int>("vector", vector);
     result = solution(vector);
-    print("result", result);
+    print<char[], int>("result", result);
     file(result);
     file.flush();
   }

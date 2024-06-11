@@ -33,9 +33,9 @@ int main()
       B = gen();
     K = genB();
 
-    print("A, B, K", std::vector<int>{A, B, K});
+    print<char[], int>("A, B, K", std::vector<int>{A, B, K});
     result = solution(A, B, K);
-    print("result", result);
+    print<char[], int>("result", result);
 
     // file(result);
     // file.flush();

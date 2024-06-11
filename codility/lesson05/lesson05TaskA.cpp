@@ -31,7 +31,6 @@ int solution(std::vector<int>& A)
 int main()
 {
   WriteToFile<int> file(__FILE__);
-
   RandomGenerator<int> gen(0, 1);
 
   int result = -1;
@@ -42,9 +41,9 @@ int main()
   for (int i = 0; i < 10; i++) {
     vector = gen.randomVector(1, N);
     file(vector);
-    print("vector", vector);
+    print<char[], int>("vector", vector);
     result = solution(vector);
-    print("result", result);
+    print<char[], int>("result", result);
     file(result);
     file.flush();
   }

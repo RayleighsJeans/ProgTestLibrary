@@ -5,6 +5,9 @@ constexpr int N = 10;
 constexpr int limit = 1000; // std::numeric_limits<int>::max();
 
 
+using namespace helper;
+
+
 int solution(std::vector<int>& A)
 {
   auto vectorSum = [](std::vector<int> vector)
@@ -20,7 +23,7 @@ int solution(std::vector<int>& A)
   int sumRight = totalSum - A[0];
 
   int diff = std::abs(sumLeft - sumRight);
-  for (int P = 1; P < A.size(); P++) {
+  for (size_t P = 1; P < A.size(); P++) {
     diff = std::min(diff, std::abs(sumLeft - sumRight));
 
     sumLeft += A[P];
@@ -32,19 +35,19 @@ int solution(std::vector<int>& A)
 
 int main()
 {
-  helper::WriteToFile<int> file(__FILE__);
-  helper::RandomGenerator<int> gen(-limit, limit);
+  WriteToFile<int> file(__FILE__);
+  RandomGenerator<int> gen(-limit, limit);
 
   std::vector<int> vector;
   int result = -1;
 
   for (int i = 0; i < 10; i++) {
     vector = gen.randomVector(2, N);
-    helper::print("vector", vector);
+    print<char[], int>("vector", vector);
     file(vector);
 
     result = solution(vector);
-    helper::print("result", result);
+    print<char[], int>("result", result);
     file(result);
     file.flush();
   }
