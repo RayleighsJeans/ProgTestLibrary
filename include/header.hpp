@@ -279,7 +279,8 @@ class RandomGenerator
   /// @param min Maximum random number value.
   /// @param max Minimum random number value.
   RandomGenerator(const T min, const T max)
-      : m_randomDistribution(RandomDistribution(min, max)),
+      : m_randomDistribution(RandomDistribution<T>(min, max)),
+        m_binaryDistribution(RandomDistribution<int>(0, 1)),
         m_generator(std::mt19937((std::random_device())())){};
 
   /// @brief dtor.
@@ -291,8 +292,12 @@ class RandomGenerator
   /// @return A single random number.
   T operator()() { return m_randomDistribution(m_generator); }; // operator()
 
+  /// @brief Get a random true/false.
+  /// @return A randomly distributed boolean true or false.
+  bool trueFalse() { return m_binaryDistribution(m_generator); } // trueFalse
+
   /// @brief Build random number vector of given length.
-  /// @param length Exact lenght of vector.
+  /// @param length Exact length of vector.
   /// @return The constructed container.
   std::vector<T> randomVector(const int length)
   {
@@ -328,9 +333,9 @@ class RandomGenerator
     return randomVectorN_1(length);
   }; // randomVectorN_1
 
-  /// @brief Build a vector of
-  /// @param length
-  /// @return
+  /// @brief Build a vector of given length with elements [0, length-1]
+  /// @param length The desired length.
+  /// @return A random vector.
   std::vector<T> randomVectorN_1(const int length)
   {
     std::vector<T> vector(length);
@@ -338,6 +343,32 @@ class RandomGenerator
     randomVector(vector, elementDistributionN_1);
     return vector;
   }; // randomVectorN_1
+
+  /// @brief Build a random vector that potentially has a leader -
+  ///        a number that occurs >= length/2 times.
+  /// @param length The desired length.
+  /// @return A vector with a potential leader.
+  std::vector<T> randomLeaderVector(const int length)
+  {
+    // int split = RandomDistribution<int>(0, length)(m_generator);
+    float split = RandomDistribution<float>(0, 1)(m_generator);
+    T leader = m_randomDistribution(m_generator);
+
+    std::vector<T> vector(length);
+    randomVector(vector, m_randomDistribution);
+
+    for (int i = 0; i < length; i++) {
+      if (i / (float)length < split) {
+        vector[i] = leader;
+      }
+      else {
+        break;
+      }
+    }
+
+    std::shuffle(vector.begin(), vector.end(), m_generator);
+    return vector;
+  } // randomLeaderVector
 
   /// @brief Build random number vector of random length.
   /// @param minLength Minimum length of vector.
@@ -410,7 +441,7 @@ class RandomGenerator
   /// @brief Create vector of random, unique numbers in-place of container from
   /// a given distribution.
   /// @param vector The provided container (pre-sized).
-  /// @param randDist Th edistribution.
+  /// @param randDist The distribution.
   void randomUniqueVector(std::vector<T>& vector,
                           RandomDistribution<T>& randDist)
   {
@@ -432,6 +463,8 @@ class RandomGenerator
 
   /// @brief Random number distribution for generation given a seed.
   RandomDistribution<T> m_randomDistribution;
+  /// @brief Binary true/false distribution for generation given a seed.
+  RandomDistribution<int> m_binaryDistribution;
   /// @brief Seed generator for random numbers.
   std::mt19937 m_generator;
 }; // class RandomGenerator

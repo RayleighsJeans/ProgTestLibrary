@@ -2,10 +2,6 @@
 #include "fizzBuzzSampleTest.hpp"
 
 
-constexpr int N = 10;     // 100000
-constexpr int limit = 10; // std::numeric_limits<int>::max
-
-
 using namespace helper;
 
 
@@ -30,10 +26,6 @@ void fizzBuzz(int n)
 
 int main()
 {
-  // std::string n_temp;
-  // getline(std::cin, n_temp);
-  // int n = stoi(ltrim(rtrim(n_temp)));
-
   int n = 15;
   fizzBuzz(n);
 
