@@ -93,7 +93,7 @@ void print(const std::vector<std::vector<T>>& vector)
 
   auto outerSize = vector.size();
 
-  std::cout << "[";
+  std::cout << "\n[";
   for (size_t i = 0; i < outerSize; i++) {
     if (i != 0)
       std::cout << " ";
@@ -350,7 +350,6 @@ class RandomGenerator
   /// @return A vector with a potential leader.
   std::vector<T> randomLeaderVector(const int length)
   {
-    // int split = RandomDistribution<int>(0, length)(m_generator);
     float split = RandomDistribution<float>(0, 1)(m_generator);
     T leader = m_randomDistribution(m_generator);
 
