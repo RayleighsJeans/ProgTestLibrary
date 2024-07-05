@@ -39,8 +39,7 @@ int main()
 
   int result = -1;
   std::vector<int> vector = gen.randomVector(1, N);
-  vector = {23171, 21011, 21123, 21366, 21013, 21367};
-  // vector = {8, 9, 3, 6, 1, 2};
+  vector = {3, 2, -6, 4};
   print<char[], int>("vector", vector);
 
   Timer t;
