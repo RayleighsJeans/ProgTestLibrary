@@ -1,3 +1,5 @@
+#pragma once
+
 #include <type_traits>
 
 namespace helper
@@ -16,7 +18,7 @@ template <typename T,
 class RandomDistribution
 {
  public:
-  RandomDistribution(T min, T max) : m_distribution(dist_t<T>(min, max)){};
+  RandomDistribution(T min, T max) : m_distribution(dist_t<T>(min, max)) {};
   ~RandomDistribution() = default;
 
   T operator()(std::mt19937& generator) { return m_distribution(generator); };

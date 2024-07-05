@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cmath>
 
 #include <algorithm>
@@ -8,7 +10,6 @@
 #include <map>
 #include <memory>
 #include <stack>
-#include <vector>
 
 #include <fstream>
 #include <iostream>
@@ -17,6 +18,7 @@
 
 
 // Custom header files.
+#include "printSuite.hpp"
 #include "distributions.hpp"
 #include "map.hpp"
 
@@ -42,107 +44,6 @@ typename std::vector<T>::iterator max_element(
   }
   return max;
 } // max_element
-
-
-/// @brief Write vector to std::out.
-/// @tparam T Arithmetic type.
-/// @param vector Data container to write to stream.
-template <typename T>
-void expand(const std::vector<T>& vector)
-{
-  std::cout << "[";
-  for (auto it = vector.begin(); it < vector.end(); it++) {
-    std::cout << *it;
-    if (it != vector.end() - 1)
-      std::cout << ", ";
-  }
-  std::cout << "]";
-} // print
-
-
-/// @brief Printing function for a 1D vector.
-/// @tparam T Arithmetic data type of vector.
-/// @param vector The data container provided to print.
-template <typename T>
-void print(const std::vector<T>& vector)
-{
-  expand<T>(vector);
-  std::cout << ";\n";
-} // print
-
-
-/// @brief Print an arbitrary value (type).
-/// @tparam T The value type.
-/// @param value The value.
-template <typename T>
-void print(const T& value)
-{
-  std::cout << value;
-  std::cout << ";\n";
-} // print
-
-
-/// @brief Printing function for a 2D vector.
-/// @tparam T Arithmetic data type of vector.
-/// @param vector The data container provided to print.
-template <typename T>
-void print(const std::vector<std::vector<T>>& vector)
-{
-  if (vector.empty() || vector[0].empty())
-    return;
-
-  auto outerSize = vector.size();
-
-  std::cout << "\n[";
-  for (size_t i = 0; i < outerSize; i++) {
-    if (i != 0)
-      std::cout << " ";
-    // Use simple printing fuction
-    // for 1D inside vector.
-    expand<T>(vector[i]);
-
-    if (i < outerSize - 1)
-      std::cout << ",\n";
-  }
-  std::cout << "];\n";
-} // print
-
-
-/// @brief Printing a name and 2D vector.
-/// @tparam T Arithmetic data type of vector.
-/// @param name Name to prefix the vector.
-/// @param vector The data container provided to print.
-template <typename U, typename T>
-void print(const U& name, const std::vector<std::vector<T>>& vector)
-{
-  std::cout << ">> " << name << ": ";
-  print<T>(vector);
-} // print
-
-
-/// @brief Print a arbitrary value (type) with a prefix.
-/// @tparam T The value type.
-/// @param name The prefix.
-/// @param value The value.
-template <typename U, typename T>
-void print(const U& name, const T& value)
-{
-  std::cout << ">> " << name << ": ";
-  print<T>(value);
-} // print
-
-
-/// @brief Print a arbitrary type value and a 1D vector.
-/// @tparam T The 1D vector type.
-/// @tparam U The prefix type.
-/// @param prefix The prefix.
-/// @param vector The 1D vector.
-template <typename U, typename T>
-void print(const U& prefix, const std::vector<T>& vector)
-{
-  std::cout << ">> " << prefix << ": ";
-  print<T>(vector);
-} // print
 
 
 /// @brief Class container providing functionality to write to a file.
@@ -281,7 +182,7 @@ class RandomGenerator
   RandomGenerator(const T min, const T max)
       : m_randomDistribution(RandomDistribution<T>(min, max)),
         m_binaryDistribution(RandomDistribution<int>(0, 1)),
-        m_generator(std::mt19937((std::random_device())())){};
+        m_generator(std::mt19937((std::random_device())())) {};
 
   /// @brief dtor.
   ~RandomGenerator() = default;

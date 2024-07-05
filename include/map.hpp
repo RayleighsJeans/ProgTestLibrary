@@ -1,3 +1,5 @@
+#pragma once
+
 namespace helper
 {
 template <class KeyClass, class ValueClass, int Size>
