@@ -61,6 +61,10 @@ int main()
   RandomGenerator<int> gen(-limit, limit);
 
   std::vector<int> vector;
+  auto foo = std::vector<int>({0, 1, 2, -1, -2});
+  auto bar =
+    std::any_of(foo.begin(), foo.end(), [](const int& x) { return (x < 0); });
+  print<char[], int>("bar", bar);
 
   // vector = {1, 2, 3}; // 4
   // vector = {-1, -3};                // 1

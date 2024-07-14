@@ -18,9 +18,9 @@
 
 
 // Custom header files.
-#include "printSuite.hpp"
 #include "distributions.hpp"
 #include "map.hpp"
+#include "printSuite.hpp"
 
 
 namespace helper
@@ -182,7 +182,7 @@ class RandomGenerator
   RandomGenerator(const T min, const T max)
       : m_randomDistribution(RandomDistribution<T>(min, max)),
         m_binaryDistribution(RandomDistribution<int>(0, 1)),
-        m_generator(std::mt19937((std::random_device())())) {};
+        m_generator(std::mt19937((std::random_device())())){};
 
   /// @brief dtor.
   ~RandomGenerator() = default;
