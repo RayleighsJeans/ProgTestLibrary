@@ -44,7 +44,6 @@ int solutionQ(std::vector<int>& A, int div)
     return (A[0] > A[1] ? A[1] : A[0]);
 
   const size_t M = std::max((int)(N / div), 1);
-  //   print<char[], int>("divisor", M);
 
   std::vector<std::pair<int, int>> SE(div, std::pair<int, int>(0, N - 1));
   SE[0] = std::pair<int, int>(0, M);
@@ -52,17 +51,12 @@ int solutionQ(std::vector<int>& A, int div)
     SE[j] = std::pair<int, int>(SE[j - 1].second, std::min((j + 1) * M, N - 1));
   }
   SE[div - 1] = std::pair<int, int>(SE[div - 2].second, N - 1);
-  //   print<char[], int>("start-ends", SE);
 
   for (int j = 0; j < div; j++) {
     if ((A[SE[j].first] > A[SE[j].second])) {
       auto temp =
-        std::vector<int>(A.begin() + SE[j].first, A.begin() + SE[j].second);
-      solutionQ(temp, 2);
-      //   for (int i = SE[j].first; i < SE[j].second; i++) {
-      //     if (A[i] > A[i + 1])
-      //       return A[i + 1];
-      //   }
+        std::vector<int>(A.begin() + SE[j].first, A.begin() + SE[j].second + 1);
+      return solutionQ(temp, 2);
     }
   }
   return A[0];
@@ -93,7 +87,7 @@ int main()
   //   vector = {4, 5, 6, 7, 0, 1, 2}; // 0
   //   vector = {11, 13, 15, 17};      // 11
   //   vector = {11, 13, 15};          // 11
-  //   print<char[], int>("vector", vector);
+  // print<char[], int>("vector", vector);
 
   Timer t;
   t.tick();
