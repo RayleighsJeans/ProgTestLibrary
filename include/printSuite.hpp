@@ -59,6 +59,26 @@ void expand(const std::vector<std::pair<V, W>>& vector)
 } // expand
 
 
+/// @brief Printing a map with arbitrary types of key/value.
+/// @tparam V Key data type.
+/// @tparam W Value data type.
+/// @param map The keyed data container.
+template <typename V, typename W>
+void expand(const std::map<V, W>& map)
+{
+  const int N = map.size();
+  int i = -1;
+  std::cout << "<";
+  for (auto const& [key, value] : map) {
+    i++;
+    std::cout << "{" << key << ":" << value << "}";
+    if (i < N - 1)
+      std::cout << ", ";
+  }
+  std::cout << ">";
+} // expand
+
+
 /// @brief Printing function for a 1D vector.
 /// @tparam T Arithmetic data type of vector.
 /// @param vector The data container provided to print.
@@ -88,7 +108,7 @@ void print(const std::vector<std::pair<V, W>>& vector)
 template <typename T>
 void print(const std::vector<std::vector<T>>& vector)
 {
-  if (vector.empty() || vector[0].empty())
+  if (vector.empty()) // || vector[0].empty())
     return;
 
   auto outerSize = vector.size();
@@ -205,7 +225,7 @@ void print(const U& name, const std::vector<std::pair<V, W>>& value)
 /// @tparam V First value type.
 /// @tparam W Second value type.
 /// @param name Name to prefix vector.
-/// @param value The 2D pair vector.
+/// @param vector The 2D pair vector.
 template <typename U, typename V, typename W>
 void print(const U& name,
            const std::vector<std::vector<std::pair<V, W>>>& vector)
@@ -213,4 +233,21 @@ void print(const U& name,
   std::cout << ">> " << name << ": ";
   print<V, W>(vector);
 } // print
+
+
+/// @brief Printing a name and a map of keys/values.
+/// @tparam U Prefix data type of name.
+/// @tparam V Key data type.
+/// @tparam W Value data type.
+/// @param name Name to prefix vector.
+/// @param map The 2D pair vector.
+template <typename U, typename V, typename W>
+void print(const U& name, const std::map<V, W>& map)
+{
+  std::cout << ">> " << name << ": ";
+  expand<V, W>(map);
+  std::cout << std::endl;
+} // print
+
+
 } // namespace helper
