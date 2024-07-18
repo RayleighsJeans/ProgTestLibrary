@@ -18,7 +18,7 @@ class LRUCache
   void updateCache(K key)
   {
     m_cache.push_back(key);
-    std::rotate(m_cache.begin(), m_cache.begin() + 1, m_cache.end());
+    std::rotate(m_cache.begin(), m_cache.begin() + m_size - 1, m_cache.end());
 
     updateContainer();
     m_container[key].second = 0;
@@ -121,15 +121,15 @@ int main()
   print<char[], int>("get(1) (-1)", lRUCache->get(1));
   lRUCache->debug();
 
-  lRUCache->put(5, 5);
-  lRUCache->debug();
+  // lRUCache->put(5, 5);
+  // lRUCache->debug();
 
-  print<char[], int>("get(1) (-1)", lRUCache->get(-1));
-  print<char[], int>("get(2) (2)", lRUCache->get(2));
-  print<char[], int>("get(3) (3)", lRUCache->get(3));
-  print<char[], int>("get(4) (-1)", lRUCache->get(-1));
-  print<char[], int>("get(5) (5)", lRUCache->get(5));
-  lRUCache->debug();
+  // print<char[], int>("get(1) (-1)", lRUCache->get(-1));
+  // print<char[], int>("get(2) (2)", lRUCache->get(2));
+  // print<char[], int>("get(3) (3)", lRUCache->get(3));
+  // print<char[], int>("get(4) (-1)", lRUCache->get(-1));
+  // print<char[], int>("get(5) (5)", lRUCache->get(5));
+  // lRUCache->debug();
 
   return 0;
 } // main
