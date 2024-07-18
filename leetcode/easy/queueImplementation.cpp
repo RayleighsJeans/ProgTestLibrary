@@ -56,8 +56,6 @@ class MyQueue
     return;
   }
 }; // MyQueue
-
-
 using NewQueue = MyQueue<int>;
 
 
