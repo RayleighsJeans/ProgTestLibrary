@@ -1,5 +1,7 @@
 #include "../../include/header.hpp"
 
+#include "../hashTableImpl.hpp"
+
 
 constexpr int N = 10;     // 50000;
 constexpr int limit = 10; // 1000000000;
@@ -61,6 +63,28 @@ int main()
   result = solution(vector);
   t.tock();
   print<char[], int>("result", result);
+
+  {
+    using namespace hash_tables;
+    HashedTable<char, char>* table = new HashedTable<char, char>(5000);
+
+    table->insert((char*)"1", (char*)"First address");
+    table->insert((char*)"2", (char*)"Second address");
+    table->insert((char*)"Hel", (char*)"Third address");
+    table->insert((char*)"Cau", (char*)"Fourth address");
+
+    table->find((char*)"1");
+    table->find((char*)"2");
+    table->find((char*)"3");
+    table->find((char*)"Hel");
+    table->find((char*)"Cau"); // Collision!
+
+    table->show();
+    table->remove((char*)"1");
+    table->remove((char*)"Cau");
+    table->show();
+    delete table;
+  } // namespace  hash_tables
 
   return 0;
 } // main
