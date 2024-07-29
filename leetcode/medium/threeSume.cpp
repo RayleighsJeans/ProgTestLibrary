@@ -10,6 +10,8 @@ using namespace helper;
 
 std::vector<std::vector<int>> solutionA(std::vector<int>& A)
 {
+  std::vector<std::vector<int>> results;
+  return results;
   // two pointer solution
 } // solution
 
@@ -20,12 +22,48 @@ std::vector<std::vector<int>> solutionB(std::vector<int>& A)
   size_t N = A.size();
   std::sort(A.begin(), A.end());
 
-  std::unordered_map<int, int> map;
+  std::unordered_map<int, std::vector<int>> map;
   for (size_t i = 0; i < N; i++) {
-    map[A[i]] = i;
+    map[A[i]].push_back(i);
+  }
+  for (auto& [key, value] : map)
+    print<int, int>(key, value);
+
+  auto findTwoSum = [&map, &N, &A](const int index, const int sum,
+                                   std::vector<int>& values) -> bool
+  {
+    for (size_t i = 0; i < N; i++) {
+      if (i != index) {
+        if (map.count(sum - A[i]) > 0) {
+          for (auto& j : map[sum - A[i]]) {
+            std::cout << index << ", " << sum << ", " << i << ", " << A[i]
+                      << ", " << sum - A[i] << ", " << map.count(sum - A[i])
+                      << ", " << j << std::endl;
+
+            if (j != index) {
+              values.push_back(A[i]);
+              values.push_back(A[j]);
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  };
+
+  std::vector<std::vector<int>> results;
+  std::vector<int> triplet;
+  for (size_t i = 0; i < N; i++) {
+    triplet.push_back(A[i]);
+    if (findTwoSum(i, -A[i], triplet)) {
+      print<char[], int>("triplet", triplet);
+      results.push_back(triplet);
+    }
+    triplet.clear();
   }
 
-
+  return results;
 } // solution
 
 
@@ -40,13 +78,13 @@ int main()
   print<char[], int>("vector", vector);
 
   Timer t;
-  t.tick();
-  auto result = solutionA(vector);
-  t.tock();
-  print<char[], int>("result", result);
+  // t.tick();
+  // auto result = solutionA(vector);
+  // t.tock();
+  // print<char[], int>("result", result);
 
   t.tick();
-  auto result = solutionA(vector);
+  auto result = solutionB(vector);
   t.tock();
   print<char[], int>("result", result);
 

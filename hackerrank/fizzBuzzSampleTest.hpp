@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+#include <bitset>
 
 
 std::string ltrim(const std::string& str)
