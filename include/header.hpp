@@ -7,6 +7,7 @@
 #include <random>
 
 #include <array>
+#include <list>
 #include <map>
 #include <memory>
 #include <stack>

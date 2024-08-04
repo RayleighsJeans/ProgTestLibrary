@@ -1,43 +1,36 @@
-#include <iostream>
-#include "../include/header.hpp"
+#include "trees.hpp"
 
 
-int max(int a, int b)
+namespace trees
 {
-  return (a > b) ? a : b;
-}
-
-
-namespace balanced_trees
+namespace balanced
 {
 template <typename V>
-class NodeAVL
+class NodeAVL : public Node<V>
 {
  public:
-  V key;
-  NodeAVL<V>* left;
-  NodeAVL<V>* right;
   int height;
+
+ public:
+  NodeAVL(V val) : Node<V>(val), height(0){};
+  ~NodeAVL() = default;
 };
 
 
 template <typename V>
-class TreeAVL
+class AVL : public BasicTree<V>
 {
  public:
   int height(NodeAVL<V>* N)
   {
-    if (N == NULL)
+    if (!N)
       return 0;
     return N->height;
   }
 
-  NodeAVL<V><V>* newNode(int key)
+  NodeAVL<V>* newNode(int key)
   {
-    NodeAVL<V>* node = new NodeAVL<V>();
-    node->key = key;
-    node->left = NULL;
-    node->right = NULL;
+    NodeAVL<V>* node = BasicTree<V>::newNode(key);
     node->height = 1;
     return (node);
   }
@@ -48,8 +41,13 @@ class TreeAVL
     NodeAVL<V>* T2 = x->right;
     x->right = y;
     y->left = T2;
-    y->height = max(height(y->left), height(y->right)) + 1;
-    x->height = max(height(x->left), height(x->right)) + 1;
+    y->height = std::max(height(y->left), height(y->right)) + 1;
+    x->height = std::max(height(x->left), height(x->right)) + 1;
+
+    // NodeAVL<V>* x = BasicTree<V>::rightRotate(root);
+    // x->right->height =
+    //   std::max(height(x->right->left), height(x->right->right)) + 1;
+    // x->height = std::max(height(x->left), height(x->right)) + 1;
     return x;
   }
 
@@ -59,8 +57,8 @@ class TreeAVL
     NodeAVL<V>* T2 = y->left;
     y->left = x;
     x->right = T2;
-    x->height = max(height(x->left), height(x->right)) + 1;
-    y->height = max(height(y->left), height(y->right)) + 1;
+    x->height = std::max(height(x->left), height(x->right)) + 1;
+    y->height = std::max(height(y->left), height(y->right)) + 1;
     return y;
   }
 
@@ -82,7 +80,7 @@ class TreeAVL
     else
       return node;
 
-    node->height = 1 + max(height(node->left), height(node->right));
+    node->height = 1 + std::max(height(node->left), height(node->right));
     int balanceFactor = getBalanceFactor(node);
     if (balanceFactor > 1) {
       if (key < node->left->key) {
@@ -105,15 +103,7 @@ class TreeAVL
     return node;
   }
 
-  NodeAVL<V>* nodeWithMinimumValue(NodeAVL<V>* node)
-  {
-    NodeAVL<V>* current = node;
-    while (current->left != NULL)
-      current = current->left;
-    return current;
-  }
-
-  NodeAVL<V>* deleteNode(NodeAVL<V>* root, int key)
+  NodeAVL<V>* remove(NodeAVL<V>* root, int key)
   {
     if (root == NULL)
       return root;
@@ -133,7 +123,7 @@ class TreeAVL
         free(temp);
       }
       else {
-        NodeAVL<V>* temp = nodeWithMinimumValue(root->right);
+        NodeAVL<V>* temp = BasicTree<V>::minimumValueNode(root->right);
         root->key = temp->key;
         root->right = deleteNode(root->right, temp->key);
       }
@@ -142,7 +132,7 @@ class TreeAVL
     if (root == NULL)
       return root;
 
-    root->height = 1 + max(height(root->left), height(root->right));
+    root->height = 1 + std::max(height(root->left), height(root->right));
     int balanceFactor = getBalanceFactor(root);
     if (balanceFactor > 1) {
       if (getBalanceFactor(root->left) >= 0) {
@@ -183,4 +173,5 @@ class TreeAVL
     }
   }
 }; // class TreeAVL
-} // namespace balanced_trees
+} // namespace balanced
+} // namespace trees
