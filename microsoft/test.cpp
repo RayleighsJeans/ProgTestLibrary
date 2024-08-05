@@ -4,35 +4,32 @@
 
 int main()
 {
-  {
+  if (true) {
+    using namespace trees;
+    auto tree = binary::balanced::AVLTree<std::string>("n0");
+
+    std::vector<Node<std::string>*> nodes;
+    for (int i = 1; i < 5; i++)
+      nodes.push_back(new binary::BinaryNode<std::string>(std::string("n") +
+                                                          std::to_string(i)));
+    tree.insertNodes(nodes);
+    tree.show();
+
+    tree.removeNode(tree.getNode("n0"), tree.getNode("n2"));
+  }
+
+  if (false) {
     using namespace trees;
     auto n1 = Node<std::string>("n1", 2);
 
     auto tree = BasicTree<std::string>(2, "n0");
 
     std::vector<Node<std::string>*> nodes;
-    for (int i = 1; i < 7; i++)
+    for (int i = 1; i < 5; i++)
       nodes.push_back(
         new Node<std::string>(std::string("n") + std::to_string(i), 2));
     tree.insertNodes(nodes);
-
     tree.show();
-
-    // auto tree = trees::BasicTree<int>();
-    // auto avl = trees::balanced::AVL<int>();
-    // Node *root = NULL;
-    // root = insertNode(root, 33);
-    // root = insertNode(root, 13);
-    // root = insertNode(root, 53);
-    // root = insertNode(root, 9);
-    // root = insertNode(root, 21);
-    // root = insertNode(root, 61);
-    // root = insertNode(root, 8);
-    // root = insertNode(root, 11);
-    // printTree(root, "", true);
-    // root = deleteNode(root, 13);
-    // cout << "After deleting " << endl;
-    // printTree(root, "", true);
   }
 
   if (false) {

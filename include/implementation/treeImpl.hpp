@@ -2,6 +2,7 @@
 
 
 #include "basicTreeImpl.hpp"
+#include "treeAVLImpl.hpp"
 
 
 namespace trees

@@ -12,7 +12,13 @@ class Node : public graphs::BasicVertex<KeyType>
  private:
   using NodeType = Node<KeyType>;
 
+
+ protected:
   size_t m_kary;
+  size_t m_height = 0;
+  size_t m_depth = 0;
+  int m_balanceFactor = 0;
+  size_t m_neighbors = 0;
 
   using Edges = graphs::VertexAdjacency<Node<KeyType>*>;
   Edges m_edges;
@@ -24,44 +30,54 @@ class Node : public graphs::BasicVertex<KeyType>
   {
     for (size_t i = 0; i < m_kary; i++)
       m_edges.push_back(nullptr);
+    updateHeight();
   };
   ~Node() = default;
 
-  NodeType* addAdj(NodeType* node)
+  bool addAdj(NodeType* node)
   {
-    KeyType max = minValueKey();
-    NodeType* root = nullptr;
+    if (node == this)
+      return false;
 
     size_t i;
     for (i = 0; i < m_kary; i++) {
       if (!m_edges[i] || m_edges[i] == node) {
         m_edges[i] = node;
-      }
-
-      if (max < m_edges[i]->key()) {
-        max = std::max(max, m_edges[i]->key());
-        root = m_edges[i];
-      }
-    }
-    std::cout << " " << i << " " << root << " ";
-    if (root)
-      std::cout << root->key();
-    std::cout << std::endl;
-    return (i == m_kary ? root : nullptr);
-  }
-
-  bool removeAdj(Node<KeyType>* node)
-  {
-    for (int i = 0; i < m_kary; i++) {
-      if (m_edges[i] == node) {
-        m_edges[i] = nullptr;
+        m_neighbors++;
+        updateHeight();
         return true;
       }
     }
     return false;
   }
 
-  bool hasAdj(Node<KeyType>* node) { return m_edges.hasAdj(node); }
+  bool removeAdj(Node<KeyType>* node)
+  {
+    for (size_t i = 0; i < m_kary; i++) {
+      if (m_edges[i] == node) {
+        m_edges[i] = nullptr;
+        m_neighbors--;
+
+        std::list<NodeType*> parents;
+        parents.push_back(this);
+
+        for (NodeType* edge : node->getNeighbors()) {
+          if (edge) {
+            parents.push_back(edge);
+            while (!parents.front()->addAdj(edge)) {
+              parents.pop_front();
+            }
+          }
+        }
+
+        updateHeight();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool hasAdj(Node<KeyType>* node) const { return m_edges.hasAdj(node); }
 
   void changeKary(size_t kary)
   {
@@ -74,40 +90,84 @@ class Node : public graphs::BasicVertex<KeyType>
     for (size_t i = kary; i < m_kary; i++) {
       queue.push_back(m_edges.back());
       m_edges.pop_back();
+      m_neighbors--;
     }
 
     for (NodeType* root : m_edges) {
-      while (!queue.empty() && root) {
-        root = root->addAdj(queue.back());
+      while (!queue.empty()) {
+        while (!root->addAdj(queue.back())) {
+          root = root->maxValueNode();
+        }
         queue.pop_back();
       }
     }
     m_kary = kary;
   }
 
-  KeyType minValueKey() const
+  void updateHeight()
   {
-    bool flag = false;
-    KeyType min;
-    for (NodeType* node : m_edges) {
-      if (node) {
-        flag = true;
-        min = std::min(min, node->key());
-      }
+    size_t localBalance = std::numeric_limits<size_t>::max();
+    size_t localHeight = 0;
+    for (NodeType* edge : m_edges) {
+      localHeight = std::max(localHeight, (edge ? edge->getHeight() : 0));
+      localBalance = std::min(localBalance, (edge ? edge->getHeight() : 0));
     }
-    return (flag ? min : KeyType());
+    m_height = 1 + localHeight;
+    m_balanceFactor = localHeight - localBalance;
   }
 
+  void setDepth(size_t depth) { m_depth = depth; };
+
+  void setHeight(size_t height) { m_height = height; }
+
+  void setBalance(int balance) { m_balanceFactor = balance; }
+
+  NodeType* maxValueNode() const
+  {
+    NodeType* node = nullptr;
+    KeyType max = KeyType();
+    for (NodeType* edge : m_edges) {
+      if (edge && edge->key() > max) {
+        max = edge->key();
+        node = edge;
+      }
+    }
+    return node;
+  }
+
+  NodeType* minValueNode() const
+  {
+    NodeType* node = nullptr;
+    KeyType min = KeyType();
+    for (NodeType* edge : m_edges) {
+      if (edge && min > edge->key()) {
+        min = edge->key();
+        node = edge;
+      }
+    }
+    return node;
+  }
+
+  size_t neighborsSize() const { return m_neighbors; }
+
   Edges getNeighbors() const { return m_edges; }
+
+  int getBalance() const { return m_balanceFactor; }
+
+  size_t getHeight() const { return m_height; }
+
+  size_t getDepth() const { return m_depth; }
 
   void show() const
   {
     for (NodeType* node : m_edges) {
       if (node)
-        std::cout << node->key() << ", ";
+        std::cout << "'" << node->key() << "', ";
       else
         std::cout << "*, ";
     }
+    std::cout << "\tN=" << m_neighbors << ", H=" << m_height
+              << ", B=" << m_balanceFactor << ", D=" << m_depth;
   }
 };
 
@@ -117,17 +177,21 @@ class BasicTree : public graphs::DefaultGraph<KeyType, Node<KeyType>>
 {
  private:
   using NodeType = Node<KeyType>;
+
+
+ protected:
   NodeType* m_root;
 
   graphs::VertexMap<KeyType, NodeType>* m_map;
   graphs::AdjacencyMatrix<KeyType, NodeType> m_matrix;
 
   size_t m_kary;
+  size_t m_maxDepth = 0;
 
 
  public:
   BasicTree(const size_t kary, const KeyType& key)
-      : BasicTree(kary, new NodeType(key, kary)) {};
+      : BasicTree(kary, new NodeType(key, kary)){};
   BasicTree(size_t kary, NodeType* node)
       : m_root(node),
         m_map(new graphs::VertexMap<KeyType, NodeType>()),
@@ -135,131 +199,214 @@ class BasicTree : public graphs::DefaultGraph<KeyType, Node<KeyType>>
         m_kary(kary)
   {
     m_map->addVertex(m_root);
-  }
-
+  };
   ~BasicTree() = default;
 
-  NodeType* insertNodes(std::vector<NodeType*> nodes)
+  NodeType* insertNode(NodeType* root, NodeType* node)
+  {
+    if (!root)
+      return nullptr;
+
+    node->changeKary(m_kary);
+    m_map->addVertex(node);
+
+    while (!root->addAdj(node)) {
+      root = root->maxValueNode();
+    }
+    updateHeights();
+    return root;
+  }
+
+  NodeType* insertNode(NodeType* node)
   {
     NodeType* root(m_root);
-    NodeType* tmp = nullptr;
+    return insertNode(root, node);
+  }
 
+  NodeType* insertNodes(NodeType* root, std::vector<NodeType*> nodes)
+  {
     size_t i = 0;
     while (root && i < nodes.size()) {
-      nodes[i]->changeKary(m_kary);
-      m_map->addVertex(nodes[i]);
-
-      std::cout << "i " << i << " node " << nodes[i]->key() << " root "
-                << root->key();
-      tmp = root->addAdj(nodes[i]);
-      std::cout << " tmp " << tmp << std::endl;
-
-      root = (!tmp ? root : tmp);
+      root = insertNode(root, nodes[i]);
       i++;
     }
     return root;
   }
 
-  //   NodeType* insertNode(NodeType* root, NodeType* node)
-  //   {
-  //     if (!node)
-  //       return (Node<V>(key));
-  //     if (key < node->key) {
-  //       node->left = insertNode(node->left, key);
-  //     }
-  //     else if (key > node->key) {
-  //       node->right = insertNode(node->right, key);
-  //     }
-  //     else {
-  //       return node;
-  //     }
-  //     return node;
-  //   }
+  NodeType* insertNodes(std::vector<NodeType*> nodes)
+  {
+    NodeType* root(m_root);
+    return insertNodes(root, nodes);
+  }
 
-  //   void appendNode(NodeType* node) { while () }
+  NodeType* removeNode(NodeType* node)
+  {
+    if (!m_map->hasVertex(node))
+      std::cout << "Node '" << node->key() << "' not in tree" << std::endl;
 
+    for (auto& [key, parent] : m_map) {
+      if (parent->hasVertex(node)) {
+        parent->removeAdj(node);
+        updateHeights();
+        return parent;
+      }
+    }
+    return nullptr;
+  }
 
-  //   Node<V>* rightRotate(Node<V>* root)
-  //   {
-  //     Node<V>* x = root->left;
-  //     Node<V>* y = x->right;
-  //     x->right = root;
-  //     root->left = y;
-  //     return x;
-  //   }
+  void updateHeights()
+  {
+    size_t totalDepth = 0;
+    std::function<void(NodeType*, size_t)> updateChildsHeight =
+      [&](NodeType* root, size_t currentDepth) -> void
+    {
+      for (NodeType* edge : root->getNeighbors()) {
+        if (edge)
+          updateChildsHeight(edge, currentDepth + 1);
+      }
+      root->updateHeight();
+      root->setDepth(currentDepth);
+      totalDepth = std::max(totalDepth, currentDepth);
+    };
+    updateChildsHeight(m_root, 1);
+    m_maxDepth = totalDepth;
+  }
 
-  //   Node<V>* leftRotate(Node<V>* root)
-  //   {
-  //     Node<V>* x = root->right;
-  //     Node<V>* y = x->left;
-  //     x->left = root;
-  //     root->right = y;
-  //     return y;
-  //   }
+  void balanceTree(NodeType* root = nullptr)
+  {
+    if (!root)
+      root = m_root;
 
+    std::list<NodeType*> parentQueue;
+    std::list<std::pair<NodeType*, NodeType*>> childQueue;
 
-  //   Node<V>* minimumValueNode(Node<V>* node)
-  //   {
-  //     Node<V>* current = node;
-  //     while (current->left != nullptr)
-  //       current = current->left;
-  //     return current;
-  //   }
+    if (root->neighborsSize() < m_kary)
+      parentQueue.push_back(root);
 
-  //   Node<V>* remove(Node<V>* root, int key)
-  //   {
-  //     if (!root)
-  //       return root;
+    std::function<void(NodeType*)> unbalancedNodes =
+      [&](NodeType* parent) -> void
+    {
+      size_t B = parent->getBalance();
+      for (NodeType* node : parent->getNeighbors()) {
+        if (!node)
+          continue;
 
-  //     if (key < root->key) {
-  //       root->left = remove(root->left, key);
-  //     }
-  //     else if (key > root->key) {
-  //       root->right = remove(root->right, key);
-  //     }
-  //     else {
-  //       if ((!root->left) || (!root->right)) {
-  //         Node<V>* temp = root->left ? root->left : root->right;
-  //         if (!temp) {
-  //           temp = root;
-  //           root = nullptr;
-  //         }
-  //         else {
-  //           *root = *temp;
-  //         }
-  //         free(temp);
-  //       }
-  //       else {
-  //         Node<V>* temp = minimumValueNode(root->right);
-  //         root->key = temp->key;
-  //         root->right = remove(root->right, temp->key);
-  //       }
-  //     }
-  //     return root;
-  //   }
+        size_t N = node->neighborsSize();
+        if ((N < m_kary) && (node->getDepth() < m_maxDepth - 1))
+          parentQueue.push_back(node);
+        if (N == 0 && B <= 1)
+          childQueue.push_back(std::pair<NodeType*, NodeType*>(parent, node));
 
-  //   void print(Node<V>* root, std::string indent, bool last)
-  //   {
-  //     if (root != nullptr) {
-  //       std::cout << indent;
-  //       if (last) {
-  //         std::cout << "R----";
-  //         indent += "   ";
-  //       }
-  //       else {
-  //         std::cout << "L----";
-  //         indent += "|  ";
-  //       }
-  //       std::cout << root->key << std::endl;
-  //       print(root->left, indent, false);
-  //       print(root->right, indent, true);
-  //     }
-  //   }
+        unbalancedNodes(node);
+      }
+    };
+
+    auto balanceLoop = [&parentQueue, &childQueue]() -> int
+    {
+      int actionCounter = 0;
+      NodeType* parent = parentQueue.front();
+
+      while (!childQueue.empty() && !parentQueue.empty()) {
+
+        while ((childQueue.back().second->neighborsSize() == 0) &&
+               parent->addAdj(childQueue.back().second)) {
+          childQueue.back().first->removeAdj(childQueue.back().second);
+          childQueue.pop_back();
+          actionCounter++;
+        }
+
+        if (childQueue.back().second == parent ||
+            childQueue.back().second->neighborsSize() > 0) {
+          if (!childQueue.empty())
+            childQueue.pop_back();
+        }
+        else {
+          parentQueue.pop_front();
+          parent = parentQueue.front();
+        }
+      }
+      return actionCounter;
+    };
+
+    unbalancedNodes(root);
+    while (balanceLoop() > 0) {
+      updateHeights();
+      childQueue.clear();
+      parentQueue.clear();
+      unbalancedNodes(root);
+    }
+  }
+
+  NodeType* getNode(const KeyType& key) const
+  {
+    if (m_map->find(key) != m_map->end())
+      return m_map->operator[](key);
+  }
+
+  NodeType* minValueNode(NodeType* root = nullptr)
+  {
+    if (!root)
+      root = m_root;
+
+    NodeType* current = root;
+    while (current->minValueNode()) {
+      current = current->minValueNode();
+    }
+    return current;
+  }
 
   void DFS(std::vector<bool> visited = std::vector<bool>(),
-           NodeType* startVertex = nullptr) {};
+           NodeType* root = nullptr)
+  {
+    if (!root)
+      root = m_root;
+    if (!m_map->hasVertex(root)) {
+      std::cout << "Vertex '" << root->key() << "' not in graph " << std::endl;
+      return;
+    }
 
-  void BFS(NodeType* startVertex = nullptr) {};
+    if (visited.empty())
+      visited = std::vector<bool>(m_map->size(), false);
+
+    visited[std::distance(m_map->begin(), m_map->find(root->key()))] = true;
+    std::cout << "Visited '" << root->key() << "'" << std::endl;
+
+    for (auto& neighbour : root->getNeighbors()) {
+      int D = std::distance(m_map->begin(), m_map->find(neighbour->key()));
+      if (!visited[D])
+        DFS(visited, neighbour);
+    }
+  }
+
+  void BFS(NodeType* root = nullptr)
+  {
+    if (!root)
+      root = m_map->begin()->second;
+    if (!m_map->hasVertex(root)) {
+      std::cout << "Vertex '" << root->key() << "' not in graph" << std::endl;
+      return;
+    }
+
+    std::vector<bool> visited(m_map->size(), false);
+    std::list<NodeType*> queue;
+
+    visited[std::distance(m_map->begin(), m_map->find(root->key()))] = true;
+
+    queue.push_back(root);
+    while (!queue.empty()) {
+      NodeType* vertex = queue.front();
+      std::cout << "Visited '" << vertex->key() << "'" << std::endl;
+      queue.pop_front();
+
+      for (auto& neighbour : vertex->getNeighbors()) {
+        int D = std::distance(m_map->begin(), m_map->find(neighbour->key()));
+        if (!visited[D]) {
+          visited[D] = true;
+          queue.push_back(neighbour);
+        }
+      }
+    }
+  };
 
   void show()
   {
