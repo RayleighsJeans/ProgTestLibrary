@@ -29,12 +29,13 @@ class Node : public graphs::BasicVertex<KeyType>
 
   NodeType* addAdj(NodeType* node)
   {
-    KeyType max;
+    KeyType max = minValueKey();
     NodeType* root = nullptr;
-    for (size_t i = 0; i < m_kary; i++) {
+
+    size_t i;
+    for (i = 0; i < m_kary; i++) {
       if (!m_edges[i] || m_edges[i] == node) {
         m_edges[i] = node;
-        return nullptr;
       }
 
       if (max < m_edges[i]->key()) {
@@ -42,7 +43,11 @@ class Node : public graphs::BasicVertex<KeyType>
         root = m_edges[i];
       }
     }
-    return root;
+    std::cout << " " << i << " " << root << " ";
+    if (root)
+      std::cout << root->key();
+    std::cout << std::endl;
+    return (i == m_kary ? root : nullptr);
   }
 
   bool removeAdj(Node<KeyType>* node)
@@ -66,7 +71,7 @@ class Node : public graphs::BasicVertex<KeyType>
     }
 
     std::list<NodeType*> queue;
-    for (size_t i = kary - 1; i < m_kary; i++) {
+    for (size_t i = kary; i < m_kary; i++) {
       queue.push_back(m_edges.back());
       m_edges.pop_back();
     }
@@ -80,7 +85,30 @@ class Node : public graphs::BasicVertex<KeyType>
     m_kary = kary;
   }
 
+  KeyType minValueKey() const
+  {
+    bool flag = false;
+    KeyType min;
+    for (NodeType* node : m_edges) {
+      if (node) {
+        flag = true;
+        min = std::min(min, node->key());
+      }
+    }
+    return (flag ? min : KeyType());
+  }
+
   Edges getNeighbors() const { return m_edges; }
+
+  void show() const
+  {
+    for (NodeType* node : m_edges) {
+      if (node)
+        std::cout << node->key() << ", ";
+      else
+        std::cout << "*, ";
+    }
+  }
 };
 
 
@@ -98,47 +126,39 @@ class BasicTree : public graphs::DefaultGraph<KeyType, Node<KeyType>>
 
 
  public:
-  BasicTree(size_t kary, std::initializer_list<KeyType> keys)
-      : m_map(new graphs::VertexMap<KeyType, NodeType>()),
+  BasicTree(const size_t kary, const KeyType& key)
+      : BasicTree(kary, new NodeType(key, kary)) {};
+  BasicTree(size_t kary, NodeType* node)
+      : m_root(node),
+        m_map(new graphs::VertexMap<KeyType, NodeType>()),
         m_matrix(graphs::AdjacencyMatrix<KeyType, NodeType>(m_map)),
         m_kary(kary)
   {
-    std::vector<NodeType*> nodes;
-    for (auto& key : keys) {
-      nodes.push_back(new NodeType(key, kary));
-    }
-    BasicTree(kary, nodes);
-  };
-
-  BasicTree(size_t kary, std::initializer_list<NodeType*> nodes)
-      : m_map(new graphs::VertexMap<KeyType, NodeType>()),
-        m_matrix(graphs::AdjacencyMatrix<KeyType, NodeType>(m_map)),
-        m_kary(kary)
-  {
-    std::vector<NodeType*> queue;
-    for (NodeType* node : nodes) {
-      node->changeKary(kary);
-      nodes.push_back(node);
-    }
-    BasicTree(kary, nodes);
-  };
-
-  BasicTree(size_t kary, std::vector<NodeType*> nodes)
-      : m_map(new graphs::VertexMap<KeyType, NodeType>()),
-        m_matrix(graphs::AdjacencyMatrix<KeyType, NodeType>(m_map)),
-        m_kary(kary)
-  {
-    NodeType* root = m_root;
-    for (size_t i = 1; i < nodes.size(); i++) {
-      nodes[i]->changeKary(kary);
-      m_map->addVertex(nodes[i]);
-      while (root) {
-        root = root->addAdj(nodes[i]);
-      }
-    }
-  };
+    m_map->addVertex(m_root);
+  }
 
   ~BasicTree() = default;
+
+  NodeType* insertNodes(std::vector<NodeType*> nodes)
+  {
+    NodeType* root(m_root);
+    NodeType* tmp = nullptr;
+
+    size_t i = 0;
+    while (root && i < nodes.size()) {
+      nodes[i]->changeKary(m_kary);
+      m_map->addVertex(nodes[i]);
+
+      std::cout << "i " << i << " node " << nodes[i]->key() << " root "
+                << root->key();
+      tmp = root->addAdj(nodes[i]);
+      std::cout << " tmp " << tmp << std::endl;
+
+      root = (!tmp ? root : tmp);
+      i++;
+    }
+    return root;
+  }
 
   //   NodeType* insertNode(NodeType* root, NodeType* node)
   //   {
@@ -237,7 +257,18 @@ class BasicTree : public graphs::DefaultGraph<KeyType, Node<KeyType>>
   //   }
 
   void DFS(std::vector<bool> visited = std::vector<bool>(),
-           NodeType* startVertex = nullptr){};
-  void BFS(NodeType* startVertex = nullptr){};
+           NodeType* startVertex = nullptr) {};
+
+  void BFS(NodeType* startVertex = nullptr) {};
+
+  void show()
+  {
+    std::cout << "root: " << m_root->key() << std::endl;
+    for (auto& [key, node] : *m_map) {
+      std::cout << "'" << key << "' -> ";
+      node->show();
+      std::cout << std::endl;
+    }
+  }
 }; // class BasicTree
 } // namespace trees
