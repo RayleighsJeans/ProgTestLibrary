@@ -21,13 +21,14 @@ class BinaryNode : public Node<KeyType>
 
   void updateHeight()
   {
-    Node<KeyType>::setHeight(
-      1 + std::max(left()->getHeight(), right()->getHeight()));
-    Node<KeyType>::setBalance(left()->getHeight() - right()->getHeight());
+    auto leftHeight = (left() ? left()->getHeight() : 0);
+    auto rightHeight = (right() ? right()->getHeight() : 0);
+    Node<KeyType>::setHeight(1 + std::max(leftHeight, rightHeight));
+    Node<KeyType>::setBalance(leftHeight - rightHeight);
   }
 
-  NodeType* left() { return Base::m_edges[0]; }
-  NodeType* right() { return Base::m_edges[1]; }
+  NodeType* left() { return static_cast<NodeType*>(Base::m_edges[0]); }
+  NodeType* right() { return static_cast<NodeType*>(Base::m_edges[1]); }
 
   void putLeft(NodeType* node) { Base::m_edges[0] = node; }
   void putRight(NodeType* node) { Base::m_edges[1] = node; }
@@ -41,11 +42,17 @@ class AVLTree : public BasicTree<KeyType>
  private:
   using NodeType = BinaryNode<KeyType>;
   using Base = BasicTree<KeyType>;
+  using BaseNode = Node<KeyType>;
 
  public:
   AVLTree(const KeyType& key) : BasicTree<KeyType>(2, new NodeType(key)){};
   AVLTree(NodeType* node) : BasicTree<KeyType>(2, node){};
   ~AVLTree() = default;
+
+  NodeType* getNode(const KeyType& key)
+  {
+    return static_cast<NodeType*>(Base::getNode(key));
+  }
 
   NodeType* insertNode(NodeType* root, NodeType* node)
   {
@@ -87,6 +94,9 @@ class AVLTree : public BasicTree<KeyType>
 
   NodeType* rightRotate(NodeType* root)
   {
+    if (!root)
+      return nullptr;
+
     NodeType* x = root->left();
     NodeType* y = x->right();
 
@@ -99,10 +109,13 @@ class AVLTree : public BasicTree<KeyType>
 
   NodeType* leftRotate(NodeType* root)
   {
+    if (!root)
+      return nullptr;
+
     NodeType* y = root->right();
     NodeType* x = y->left();
 
-    y->putLeft(x);
+    y->putLeft(root);
     root->putRight(x);
     root->updateHeight();
     y->updateHeight();
@@ -111,28 +124,32 @@ class AVLTree : public BasicTree<KeyType>
 
   NodeType* removeNode(NodeType* root, NodeType* node)
   {
+    if (!root)
+      return nullptr;
     if (!node || !Base::m_map->hasVertex(node))
       return nullptr;
 
     if (node->key() < root->key())
-      root->putLeft(removeNode(root, node->key()));
+      root->putLeft(removeNode(root->left(), node));
     else if (node->key() > root->key())
-      root->putRight(removeNode(root, node->key()));
+      root->putRight(removeNode(root->right(), node));
     else {
       if (!root->left() || !root->right()) {
-        NodeType* tmp = root->left() ? root->left() : root->right();
+        NodeType* tmp = (root->left() ? root->left() : root->right());
         if (!tmp)
           tmp = root;
         else
           *root = *tmp;
-        free(tmp);
       }
       else {
-        NodeType* tmp = Base::minValueNode(root->right());
+        NodeType* tmp = (NodeType*)(Base::minValueNode(root->right()));
         root->key() = tmp->key();
-        root->right() = removeNode(tmp->key);
+        root->putRight(removeNode(root->right(), tmp));
       }
     }
+
+    if (!root)
+      return nullptr;
 
     root->updateHeight();
 

@@ -4,7 +4,7 @@
 
 int main()
 {
-  if (true) {
+  if (false) {
     using namespace trees;
     auto tree = binary::balanced::AVLTree<std::string>("n0");
 
@@ -14,22 +14,29 @@ int main()
                                                           std::to_string(i)));
     tree.insertNodes(nodes);
     tree.show();
-
-    tree.removeNode(tree.getNode("n0"), tree.getNode("n2"));
+    tree.removeNode(tree.getNode("n0"), tree.getNode("n1"));
+    tree.show();
   }
 
-  if (false) {
+  if (true) {
     using namespace trees;
     auto n1 = Node<std::string>("n1", 2);
 
     auto tree = BasicTree<std::string>(2, "n0");
 
     std::vector<Node<std::string>*> nodes;
-    for (int i = 1; i < 5; i++)
+    for (int i = 1; i < 10; i++)
       nodes.push_back(
         new Node<std::string>(std::string("n") + std::to_string(i), 2));
     tree.insertNodes(nodes);
+    tree.balanceTree();
     tree.show();
+
+    tree.removeNode(tree.getNode("n4"));
+    tree.show();
+
+    tree.DFS();
+    tree.BFS();
   }
 
   if (false) {
@@ -44,8 +51,8 @@ int main()
     g.addVertex(v2, v4);
     g.addAdj(v1, v4);
     g.addAdj(v3, v4);
-    // g.removeVertex(v2);
-    // g.removeAdj(v3, v4);
+    g.removeVertex(v2);
+    g.removeAdj(v3, v4);
 
     g.print();
 

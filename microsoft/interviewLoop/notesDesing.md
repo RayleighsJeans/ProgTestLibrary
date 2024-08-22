@@ -1,5 +1,32 @@
+= DESIGN =====================================================================
+>> Understand the problem
+  - familiarize yourself with the problem and define the scope of the design with the interviewer
+>> Clarify & Record Requirements
+  - bullet-point list of the design requirements.
+  - make sure you're aligned with your interviewer before moving on
+>> Diagram a Quick Data Model
+  - relational data, add small tables (2 columns) for each database 
+  - one column holds the ID (e.g. "name" for a "users" table) and other holds the data
+>> Decision Points (Note Throughout!)
+  - note of the takeaways or key points
+  - while drawing your diagrams, you should always list the takeaways your hiring manager should be focused on
+>> Take Notes
+  - As you build your system, make sure to include notes regarding design trade-offs and takeaways
+>>Design the system
+  - highlight the system's core elements. Explain how they’ll work together within a complete system
+>> Diagram Your Design: Start Simple, Then Scale Up
+  - common approach is to start with the backend
+  - often you might start with your databases, as you've just finished defining your data model
+  - as we think about scaling up, we'll add a load balancer to route requests to the appropriate services, helping us avoid overloading any components deeper
+>> Keep Things Legible
+>> Refine the design
+  - reflect on the design's bottlenecks and possible solutions if the system was scaled up
+>> Finalize
+  - check that the design meets all requirements and suggest ways to improve your system if you had more time
+
+= EXAMPLES ===================================================================
 >> Iron For Blind People
-  >> Assumptions and Clarification!
+  >> Assumptions and Clarification
     - What kind of blind person are we talking about?
     - Are they partially blind? Color Blind?
     - Can Detect Light ? Can See blurry Images?
@@ -93,15 +120,16 @@
     What is this company in? - Startup exploring ideas to design fridge, or an already established fridge company
     Kids = which age group is referred to her or I can define the user segments?
     Where is the refrigerator being used (household/school/daycare)? - Household
-  Assumption: I am assuming Fridge's basic function is to freeze meats/ice cream/veggies etc and store food for a longer period. It also allows people to chill drinks.
-  >> User group & Use case:
+
+    Assumption: I am assuming Fridge's basic function is to freeze meats/ice cream/veggies etc and store food for a longer period. It also allows people to chill drinks.
+  >> User group & Use case
     - Infant/toddlers (0-3) -
       the kids are on breast milk/formula or just beginning to eat food, but the parents are feeding them. They are not yet ready to reach the refrigerator to grab a bite. However, we could define the fridge focused on kids in this age group's needs and how parents fulfill them.
     - School Age (6-12) -
       kids in this group are more likely to get food from the refrigerator, seeing my nephew & niece reach for junk food over healthy food, I believe this fridge could shape their nutritional needs.
     - Parents/relatives -
       they are the customer and will also be the primary users of the refrigerator. Given the above user groups, I would like to focus on one user segment for kids - i.e school age. Let me know if you'd like me to focus on another segment? - No, school-age is fine.
-  >> Pain points:
+  >> Pain points
     When kids reach the refrigerator, 9 out 10 times pick unhealthy snacks over healthy food
     Parents often worry about kids pulling the food out and dropping glass bowls which could seriously injure kids
     Given the current situation where - Parents & kids work from home - it has increasingly become difficult for parents to track kids eating schedules and how much nutrition has gone in a day
@@ -121,7 +149,7 @@
 
 
 >> App For Renting Bicycles
-  >> Assumptions:
+  >> Assumptions
     Platform: iOS/Android and Web Application
     Service Type: Renting Bicycles (hourly, daily, weekly), possibility of buying or selling
     Geography: Focusing on Asian markets, e.g., India, where bicycles are a popular mode of transportation
@@ -138,21 +166,23 @@
     College Students: Ages 14-22, daily commuting, tech-savvy, value online presence.
     Business Professionals: Middle-aged, punctual, commute short distances, support sustainable energy.
     Tourists: Seek comfort, accessibility, and local exploration experiences.
-  >> Prioritization: Focusing on college students and business professionals due to their higher frequency and market size.
+  >> Prioritization:
+    Focusing on college students and business professionals due to their higher frequency and market size.
   >> Needs and Pain Points
     Journey: Wake up, search for nearby bicycles, unlock, commute, find docking station, end ride, payment.
     Pain Points: Availability: Easily and readily available bicycles nearby. Condition Information: Lack of information on bicycle condition. Physical Safety: Concerns about safety during use.
-  >> Pain Point Prioritization: Condition Information: High level of impact and frequency.
+  >> Pain Point Prioritization:
+    Condition Information: High level of impact and frequency.
   >> Solutions
     For Bicycle Condition Information:
     Augmented Reality (AR) Inspection: AR to show non-functional parts before unlocking.
     Digital Cycle Image: Alert users about specific issues through an interactive image.
     AI Analysis: Implement AI to assess if the bike is in working condition.
-  >> For Availability:
+  >> For Availability
     Real-Time Bicycle Tracking: Implement GPS tracking for immediate location of nearby bicycles.
     Demand Prediction: Use data analytics to predict and fulfill demand in specific areas.
     Community Bicycle Stations: Partner with local businesses for dedicated bicycle stations.
-  >> For Physical Safety:
+  >> For Physical Safety
     In-App Safety Tutorials: Provide guidelines and tutorials on safe riding practices.
     Emergency Assistance Feature: Quick access to emergency services through the app.
     Safe Route Recommendations: Integrate with city data to suggest the safest commuting routes.

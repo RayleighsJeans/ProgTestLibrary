@@ -89,6 +89,8 @@ class VertexMap : public std::map<KeyType, VertexType*>
  public:
   bool addVertex(VertexType* v)
   {
+    if (!v)
+      return false;
     if (this->find(v->key()) == this->end()) {
       this->operator[](v->key()) = v;
       return true;
@@ -99,6 +101,8 @@ class VertexMap : public std::map<KeyType, VertexType*>
 
   bool hasVertex(VertexType* v)
   {
+    if (!v)
+      return false;
     return (this->find(v->key()) != this->end());
   }
 };

@@ -1,3 +1,12 @@
+= CODING =====================================================================
+  >> U -- Understand the problem
+  >> M -- Match the problem with the interviewer
+  >> P -- Plan your approach and solution
+  >> I -- Implement your solution
+  >> R -- Review your solution
+  >> E -- Evaluate your solution
+
+
 = UTILITY SNIPPETS ===========================================================
   >> Test kth bit is set:
      num & (1 << k) != 0

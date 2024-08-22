@@ -244,14 +244,37 @@ class BasicTree : public graphs::DefaultGraph<KeyType, Node<KeyType>>
     if (!m_map->hasVertex(node))
       std::cout << "Node '" << node->key() << "' not in tree" << std::endl;
 
-    for (auto& [key, parent] : m_map) {
-      if (parent->hasVertex(node)) {
+    for (auto& [key, parent] : *m_map) {
+      if (parent->hasAdj(node)) {
         parent->removeAdj(node);
         updateHeights();
+        updateMap();
         return parent;
       }
     }
     return nullptr;
+  }
+
+  void updateMap(graphs::VertexMap<KeyType, NodeType>* map =
+                   new graphs::VertexMap<KeyType, NodeType>(),
+                 NodeType* root = nullptr)
+  {
+    if (!root)
+      root = m_root;
+
+    for (NodeType* node : root->getNeighbors()) {
+      if (!m_map->hasVertex(node))
+        m_map->addVertex(node);
+      if (node) {
+        map->addVertex(node);
+        updateMap(map, node);
+      }
+    }
+
+    for (auto& [key, node] : *m_map) {
+      if (!map->hasVertex(node))
+        m_map->erase(key);
+    }
   }
 
   void updateHeights()
@@ -341,6 +364,7 @@ class BasicTree : public graphs::DefaultGraph<KeyType, Node<KeyType>>
   {
     if (m_map->find(key) != m_map->end())
       return m_map->operator[](key);
+    return nullptr;
   }
 
   NodeType* minValueNode(NodeType* root = nullptr)
@@ -372,6 +396,8 @@ class BasicTree : public graphs::DefaultGraph<KeyType, Node<KeyType>>
     std::cout << "Visited '" << root->key() << "'" << std::endl;
 
     for (auto& neighbour : root->getNeighbors()) {
+      if (!neighbour)
+        continue;
       int D = std::distance(m_map->begin(), m_map->find(neighbour->key()));
       if (!visited[D])
         DFS(visited, neighbour);
@@ -399,6 +425,8 @@ class BasicTree : public graphs::DefaultGraph<KeyType, Node<KeyType>>
       queue.pop_front();
 
       for (auto& neighbour : vertex->getNeighbors()) {
+        if (!neighbour)
+          continue;
         int D = std::distance(m_map->begin(), m_map->find(neighbour->key()));
         if (!visited[D]) {
           visited[D] = true;

@@ -1,24 +1,58 @@
-CODING =======================================================================
-  >> U -- Understand the problem
-  >> M -- Match the problem with the interviewer
-  >> P -- Plan your approach and solution
-  >> I -- Implement your solution
-  >> R -- Review your solution
-  >> E -- Evaluate your solution
-
-STARS ========================================================================
-  >> Situation: describe situation you were in or task you needed to accomplish
+= STARS ======================================================================
+  >> [S]ituation: describe situation you were in or task you needed to accomplish
      describe specific event or situation, not generalized description of what you have done
      give enough detail for interviewer to understand
-  >> Task: What goal were you working toward?
-  >> Action: describe actions you took to address the situation 
+  >> [T]ask: What goal were you working toward?
+  >> [A]ction: describe actions you took to address the situation 
      keep the focus on YOU; specify steps you took, what was your particular
      contribution? use the word “I,” not “we” when describing actions
-  >> Result: describe outcome of your actions
+  >> [R]esult: describe outcome of your actions
      What happened? How did the event end? What did you accomplish?
      What did you learn? Make sure your answer contains multiple positive results.
 
-EXAMPLES =====================================================================
+= EXAMPLES ===================================================================
+  
+  >> Describe a time when you anticipated potential problems and developed preventive measures. 
+     -[S]-
+     -[T]-
+     -[A]-
+     -[R]-
+
+  >> Tell me about a time when you were forced to make an unpopular decision.
+     -[S]-
+     -[T]-
+     -[A]-
+     -[R]-
+
+  >> Tell me about a time that you made a mistake and how did you handle it.
+     -[S]- 
+     -[T]-
+     -[A]-
+     -[R]-
+
+  >> Give an example of how you’ve worked well on a team.
+     -[S]- 
+     -[T]-
+     -[A]-
+     -[R]-
+
+  >> Tell us about a time when you made a bad decision. What did you learn from the situation?
+     -[S]-
+     -[T]-
+     -[A]-
+     -[R]-
+
+  >> What strategies have you used to get individuals to work well together to achieve a common goal? 
+     -[S]-
+     -[T]-
+     -[A]-
+     -[R]-
+
+  >> Tell us about a time when you witnessed a friend or colleague do something wrong. How did you respond? 
+     -[S]-
+     -[T]-
+     -[A]-
+     -[R]-
 
   >> Describe a situation in which you were able to use persuasion to successfully convince someone to see things your way.
      -[S]- implementation of real time feedback system for bolometer required updated and changed design of diagnostic program (better understanding)
@@ -90,7 +124,6 @@ EXAMPLES =====================================================================
      -[A]- re-wrote 3D stereoscopic LOS tracing algorithm for the above requirements entirely in a short amount of time with improved performance to edge out accuracy tests
      -[R]- new updated and future proof algo, easily extendable
 
-
   >> Tell me about a time when you had too many things to do and you were required to prioritize your tasks.
      -[S]- implementation of real time feedback system for bolometer required updated and changed design of diagnostic program (better understanding)
      -[T]- improve overall system to handle longer acquisition task at greater sampling frequency while also doing multiple RT tasks with no additional latency
@@ -159,46 +192,3 @@ EXAMPLES =====================================================================
      -[T]- finish scientific tasks and write thesis within this time +/- 0.5 years
      -[A]- scope of thesis and data collected/evaluation done to much and while working full time not advisable 
      -[R]- took +3 years to write thesis to entirety
-
-
-  >> Describe a time when you anticipated potential problems and developed preventive measures. 
-     -[S]-
-     -[T]-
-     -[A]-
-     -[R]-
-
-  >> Tell me about a time when you were forced to make an unpopular decision.
-     -[S]-
-     -[T]-
-     -[A]-
-     -[R]-
-
-  >> Tell me about a time that you made a mistake and how did you handle it.
-     -[S]- 
-     -[T]-
-     -[A]-
-     -[R]-
-
-  >> Give an example of how you’ve worked well on a team.
-     -[S]- 
-     -[T]-
-     -[A]-
-     -[R]-
-
-  >> Tell us about a time when you made a bad decision. What did you learn from the situation?
-     -[S]-
-     -[T]-
-     -[A]-
-     -[R]-
-
-  >> What strategies have you used to get individuals to work well together to achieve a common goal? 
-     -[S]-
-     -[T]-
-     -[A]-
-     -[R]-
-
-  >> Tell us about a time when you witnessed a friend or colleague do something wrong. How did you respond? 
-     -[S]-
-     -[T]-
-     -[A]-
-     -[R]-
