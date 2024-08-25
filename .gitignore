@@ -171,3 +171,7 @@ microsoft/test
 microsoft/test.dSYM/Contents/Info.plist
 microsoft/test.dSYM/Contents/Resources/DWARF/test
 microsoft/test.dSYM/Contents/Resources/Relocations/aarch64/test.yml
+hackerrank/ibm/ibmAssessment
+hackerrank/ibm/ibmAssessment.txt
+hackerrank/problems/bfsShortestReach
+leetcode/medium/treeOrderTraversal

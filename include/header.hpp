@@ -176,12 +176,22 @@ class WriteToFile
 template <typename T>
 class RandomGenerator
 {
+ private:
+  T m_minimumValue;
+  T m_maximumValue;
+
+ public:
+  T getMax() const { return m_maximumValue; };
+  T getMin() const { return m_minimumValue; };
+
  public:
   /// @brief ctor. Set up random distribution and generator seed.
   /// @param min Maximum random number value.
   /// @param max Minimum random number value.
   RandomGenerator(const T min, const T max)
-      : m_randomDistribution(RandomDistribution<T>(min, max)),
+      : m_minimumValue(min),
+        m_maximumValue(max),
+        m_randomDistribution(RandomDistribution<T>(min, max)),
         m_binaryDistribution(RandomDistribution<int>(0, 1)),
         m_generator(std::mt19937((std::random_device())())){};
 
@@ -297,7 +307,7 @@ class RandomGenerator
   /// @param length Minimum length of vector.
   /// @param height Maximum length of vector.
   /// @return The constructed container.
-  std::vector<std::vector<T>> random2dVector(const int length, const int height)
+  std::vector<std::vector<T>> randomNdVector(const int length, const int height)
   {
     std::vector<std::vector<T>> vector(height, std::vector<T>(length));
     for (int i = 0; i < height; i++) {
@@ -305,7 +315,43 @@ class RandomGenerator
       vector[i] = randomVector(length);
     }
     return vector;
-  }; // random2dVector
+  }; // randomNdVector
+
+  std::vector<std::vector<T>> randomNdUniqueVector(const int length,
+                                                   const int height)
+  {
+    bool oversized = ((length * height) > (m_maximumValue - m_minimumValue));
+
+    std::vector<std::vector<T>> vector(height, std::vector<T>(length));
+
+    std::vector<T> startingValues;
+
+    std::map<T, bool> map;
+    for (int i = 0; i < height; i++) {
+      std::vector<T> thisColumn(length);
+
+      if (oversized) {
+        if (i == 0)
+          startingValues = randomVector(height);
+        map[startingValues[i]] = true;
+      }
+
+      if (oversized)
+        thisColumn[0] = startingValues[i];
+
+      // Using simple 1D vector construction routine.
+      randomUniqueVector(map, thisColumn, m_randomDistribution);
+      vector[i] = thisColumn;
+
+      if (oversized)
+        map.clear();
+
+      print<char[], T>("vector", vector);
+      print<char[], T, bool>("map", map);
+    }
+    return vector;
+  }; // randomNdVector
+
 
   /// @brief Build 2D random number vector (vector of vectors)
   ///        of random length and height.
@@ -341,16 +387,14 @@ class RandomGenerator
 
   /// @brief Create vector of random, unique numbers in-place of container from
   /// a given distribution.
+  /// @param map A hash map tracking already set numbers.
   /// @param vector The provided container (pre-sized).
   /// @param randDist The distribution.
-  void randomUniqueVector(std::vector<T>& vector,
+  void randomUniqueVector(std::map<T, bool>& map, std::vector<T>& vector,
                           RandomDistribution<T>& randDist)
   {
-    const size_t N = vector.size();
-    std::map<int, bool> map;
-
     T number;
-    for (size_t i = 0; i < N; i++) {
+    for (size_t i = 0; i < vector.size(); i++) {
       number = randDist(m_generator);
 
       while (map.find(number) != map.end()) {
@@ -360,6 +404,18 @@ class RandomGenerator
       vector[i] = number;
       map[number] = true;
     }
+  }; // randomUniqueVector
+
+  /// @brief Create vector of random, unique numbers in-place of container from
+  /// a given distribution.
+  /// @param vector The provided container (pre-sized).
+  /// @param randDist The distribution.
+  void randomUniqueVector(std::vector<T>& vector,
+                          RandomDistribution<T>& randDist)
+  {
+    const size_t N = vector.size();
+    std::map<int, bool> map;
+    randomUniqueVector(map, vector, randDist);
   }; // randomUniqueVector
 
   /// @brief Random number distribution for generation given a seed.

@@ -17,8 +17,15 @@ template <typename T,
             typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
 class RandomDistribution
 {
+ private:
+  T m_maximumValue;
+  T m_minimumValue;
+
  public:
-  RandomDistribution(T min, T max) : m_distribution(dist_t<T>(min, max)) {};
+  RandomDistribution(T min, T max)
+      : m_maximumValue(max),
+        m_minimumValue(min),
+        m_distribution(dist_t<T>(min, max)){};
   ~RandomDistribution() = default;
 
   T operator()(std::mt19937& generator) { return m_distribution(generator); };
