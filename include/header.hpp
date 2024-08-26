@@ -321,18 +321,19 @@ class RandomGenerator
                                                    const int height)
   {
     bool oversized = ((length * height) > (m_maximumValue - m_minimumValue));
+    bool overOversized = (height > (m_maximumValue - m_minimumValue));
 
     std::vector<std::vector<T>> vector(height, std::vector<T>(length));
-
     std::vector<T> startingValues;
-
     std::map<T, bool> map;
+
     for (int i = 0; i < height; i++) {
       std::vector<T> thisColumn(length);
 
       if (oversized) {
         if (i == 0)
-          startingValues = randomVector(height);
+          startingValues =
+            (overOversized ? randomVector(height) : randomUniqueVector(height));
         map[startingValues[i]] = true;
       }
 
@@ -345,9 +346,6 @@ class RandomGenerator
 
       if (oversized)
         map.clear();
-
-      print<char[], T>("vector", vector);
-      print<char[], T, bool>("map", map);
     }
     return vector;
   }; // randomNdVector
@@ -394,15 +392,31 @@ class RandomGenerator
                           RandomDistribution<T>& randDist)
   {
     T number;
+    int count = map.size();
+    const int maxSize =
+      (std::is_integral_v<T> ? m_maximumValue - m_minimumValue
+                             : std::numeric_limits<int>::max());
+
+    bool error = false;
     for (size_t i = 0; i < vector.size(); i++) {
       number = randDist(m_generator);
 
-      while (map.find(number) != map.end()) {
-        number = randDist(m_generator);
+      if (count < maxSize) {
+        while (map.find(number) != map.end()) {
+          number = randDist(m_generator);
+        }
+      }
+      else {
+        if (!error) {
+          error = true;
+          std::cout << ">> \033[1;31mOverflow unique vector at step#" << i
+                    << "\033[0m, continue randomization." << std::endl;
+        }
       }
 
       vector[i] = number;
       map[number] = true;
+      count++;
     }
   }; // randomUniqueVector
 
