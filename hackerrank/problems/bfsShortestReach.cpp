@@ -13,7 +13,7 @@ class Graph
     int m_cost;
 
    public:
-    Edge(int cost) : m_cost(cost){};
+    Edge(int cost) : m_cost(cost) {};
     int operator()() { return m_cost; };
   };
 
@@ -24,7 +24,7 @@ class Graph
     int m_label;
 
    public:
-    Node(int label) : m_label(label){};
+    Node(int label) : m_label(label) {};
     Node(int label, Node* node, Edge* edge) : Node(label)
     {
       this->operator()(edge, node);
@@ -112,7 +112,7 @@ class Graph
       reach[name] = cost;
 
     for (auto neighbor : thisNode->neighbors())
-      connectToNode(reach, thisNode->operator()(neighbor)->operator()(),
+      connectToNode(reach, cost + thisNode->operator()(neighbor)->operator()(),
                     neighbor);
   }
 };
@@ -129,10 +129,8 @@ int main()
 
   numberOfNodes = 4;
   numberOfEdges = 2;
-
-
+  edges = {{1, 2}, {1, 3}, {3, 4}};
   print<char[], int>("edges", edges);
-
 
   // Create a graph of size n where each edge weight is 6:
   Graph g(numberOfNodes);
@@ -141,7 +139,8 @@ int main()
   }
 
   std::vector<int> distances =
-    g.shortest_reach(RandomGenerator<int>(1, numberOfNodes)());
+    // g.shortest_reach(RandomGenerator<int>(1, numberOfNodes)());
+    g.shortest_reach(1);
   print<char[], int>("distances", distances);
 
 
