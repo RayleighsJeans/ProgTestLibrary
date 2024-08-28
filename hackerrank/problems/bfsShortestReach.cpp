@@ -4,46 +4,52 @@
 using namespace helper;
 
 
+struct Edge
+{
+ private:
+  int m_cost;
+
+ public:
+  Edge(int cost) : m_cost(cost){};
+  int operator()() { return m_cost; };
+};
+
+
+struct Node
+{
+ private:
+  std::map<Node*, Edge*> m_neighbors;
+  int m_label;
+
+ public:
+  Node(int label) : m_label(label){};
+  Node(int label, Node* node, Edge* edge) : Node(label)
+  {
+    this->operator()(edge, node);
+  };
+
+  int operator()() { return m_label; };
+  void operator()(Edge* edge, Node* node) { m_neighbors[node] = edge; };
+  Edge* operator()(Node* node) { return m_neighbors[node]; };
+
+  std::vector<Node*> neighbors()
+  {
+    std::vector<Node*> list;
+    for (auto& [node, edge] : m_neighbors)
+      list.push_back(node);
+    return list;
+  }
+};
+
+
 class Graph
 {
  private:
-  struct Edge
-  {
-   private:
-    int m_cost;
+  std::vector<std::vector<int>> m_matrix;
+  std::map<int, Node*> m_logbook;
+  int m_size;
 
-   public:
-    Edge(int cost) : m_cost(cost){};
-    int operator()() { return m_cost; };
-  };
 
-  struct Node
-  {
-   private:
-    std::map<Node*, Edge*> m_neighbors;
-    int m_label;
-
-   public:
-    Node(int label) : m_label(label){};
-    Node(int label, Node* node, Edge* edge) : Node(label)
-    {
-      this->operator()(edge, node);
-    };
-
-    int operator()() { return m_label; };
-    void operator()(Edge* edge, Node* node) { m_neighbors[node] = edge; };
-    Edge* operator()(Node* node) { return m_neighbors[node]; };
-
-    std::vector<Node*> neighbors()
-    {
-      std::vector<Node*> list;
-      for (auto& [node, edge] : m_neighbors)
-        list.push_back(node);
-      return list;
-    }
-  };
-
- private:
   void connectToNode(std::map<int, int>& reach, int cost, Node* thisNode,
                      Node* parentNode)
   {
@@ -58,10 +64,6 @@ class Graph
                       cost + thisNode->operator()(neighbor)->operator()(),
                       neighbor, thisNode);
   };
-
- private:
-  std::map<int, Node*> m_logbook;
-  int m_size;
 
  public:
   Graph(int numberOfNodes) : m_size(numberOfNodes)
