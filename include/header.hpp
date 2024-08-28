@@ -193,7 +193,7 @@ class RandomGenerator
         m_maximumValue(max),
         m_randomDistribution(RandomDistribution<T>(min, max)),
         m_binaryDistribution(RandomDistribution<int>(0, 1)),
-        m_generator(std::mt19937((std::random_device())())){};
+        m_generator(std::mt19937((std::random_device())())) {};
 
   /// @brief dtor.
   ~RandomGenerator() = default;
@@ -427,7 +427,6 @@ class RandomGenerator
   void randomUniqueVector(std::vector<T>& vector,
                           RandomDistribution<T>& randDist)
   {
-    const size_t N = vector.size();
     std::map<int, bool> map;
     randomUniqueVector(map, vector, randDist);
   }; // randomUniqueVector
