@@ -1,4 +1,3 @@
-#include "../../include/header.hpp"
 #include "../../include/implementation/linkedListImpl.hpp"
 
 
@@ -80,18 +79,7 @@ using namespace helper;
 
 int main()
 {
-  {
-    using namespace linked_lists;
-
-    auto foo = Node<int>();
-    auto bar = EdgeNode<int, int>();
-
-    // LinkedList<int> list = LinkedList<int>();
-    // list.push_front(0);
-    // list.push_back(1);
-    // list.push_front(2);
-    // std::cout << "linkedlist: " << list << std::endl;
-  }
+  using namespace linked_lists;
 
   // const int numberOfNodes = RandomGenerator<int>(1, 10)();
 
