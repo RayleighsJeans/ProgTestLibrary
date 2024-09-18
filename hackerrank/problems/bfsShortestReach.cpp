@@ -59,29 +59,29 @@ using namespace helper;
 //
 // class AdjacencyMatrix
 // {};
-//
-//
-// template <typename LabelType, typename CostType>
-// class Graph
-// {
-//   using L = LabelType;
-//   using C = CostType;
-//
-//  private:
-//  public:
-//   Graph(size_t numberOfNodes) {}
-//
-//   void add_edge(L nodeA, L nodeB) {}
-//
-//   std::vector<C> shortest_reach(L startNode) {}
-// };
 
+
+template <typename LabelType, typename CostType>
+class ThisGraph
+{
+  using L = LabelType;
+  using C = CostType;
+
+ private:
+ public:
+  ThisGraph(size_t numberOfNodes) {}
+
+  void add_edge(L nodeA, L nodeB) {}
+
+  std::vector<C> shortest_reach(L startNode) {}
+};
+using Graph = ThisGraph<int, int>;
 
 int main()
 {
   using namespace linked_lists;
 
-  // const int numberOfNodes = RandomGenerator<int>(1, 10)();
+  const int numberOfNodes = RandomGenerator<int>(1, 10)();
 
   // const int numberOfEdges =
   //   RandomGenerator<int>(1, (numberOfNodes * (numberOfNodes - 1)) / 2)();
@@ -92,8 +92,9 @@ int main()
   // print<char[], int>("nodes", numberOfNodes);
   // print<char[], int>("edges", edges);
 
-  // // Create a graph of size n where each edge weight is 6:
-  // Graph g(numberOfNodes);
+  // Create a graph of size n where each edge weight is 6:
+  Graph g(numberOfNodes);
+
   // for (auto& edge : edges) {
   //   g.add_edge(edge[0], edge[1]);
   // }

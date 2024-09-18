@@ -1,106 +1,11 @@
 #pragma once
 
+#include <optional>
+#include "nodesImpl.hpp"
 
-#include "../header.hpp"
-
-
-using namespace helper;
 
 namespace linked_lists
 {
-template <typename LabelType>
-class Node
-{
-  using L = LabelType;
-
- private:
-  L m_label;
-  Node<L>* m_next;
-
- public:
-  Node(L label, Node<L>* next) : m_label(label), m_next(next){};
-  Node(L label) : Node(label, nullptr){};
-  Node() : Node(L(), nullptr){};
-  ~Node()
-  {
-    if (m_next)
-      delete m_next;
-    m_next = nullptr;
-  };
-
-  LabelType operator()() const { return m_label; }
-  void operator()(LabelType label) { m_label = label; }
-  Node<L>* next() const { return m_next; };
-
-  void next(Node<L>* next)
-  {
-    if (next && next != m_next)
-      delete m_next;
-    m_next = next;
-  }
-
-  friend std::ostream& operator<<(std::ostream& stream, Node<L>& node)
-  {
-    stream << "{" << node() << ", ";
-    if (node.next())
-      stream << (*node.next())();
-    else
-      stream << "NULL";
-    stream << "}";
-    return stream;
-  }
-};
-
-
-template <typename LabelType, typename EdgeType>
-class EdgeNode : public Node<LabelType>
-{
-  using L = LabelType;
-  using E = EdgeType;
-
- private:
-  E m_edge;
-
- public:
-  EdgeNode(L label, EdgeNode<L, E>* next, E edge)
-      : Node<L>::Node(label, next), m_edge(edge){};
-  EdgeNode(L label, EdgeNode<L, E>* next) : EdgeNode(label, next, E()){};
-  EdgeNode(L label) : EdgeNode(label, nullptr, E()){};
-  EdgeNode() : EdgeNode(L(), nullptr, E()){};
-
-  EdgeNode(Node<L> node) : EdgeNode(node()){};
-  EdgeNode(Node<L>* node) : EdgeNode((*node)()){};
-
-  ~EdgeNode() = default;
-
-  void next(EdgeNode<L, E>* next, E edge)
-  {
-    Node<L>::next(next);
-    m_edge = edge;
-  }
-
-  EdgeNode<L, E>* next() const
-  {
-    return static_cast<EdgeNode<L, E>*>(Node<L>::next());
-  }
-
-  void edge(E edge) { m_edge = edge; }
-
-  EdgeType edge() { return m_edge; }
-
-  friend std::ostream& operator<<(std::ostream& stream, EdgeNode<L, E>& node)
-  {
-    stream << "{" << node() << "->(" << node.edge() << ")->";
-    if (node.next())
-      stream << (*node.next())();
-    else
-      stream << "NULL";
-    stream << "}";
-    return stream;
-  }
-};
-
-
 template <typename LabelType>
 class LinkedList
 {
@@ -127,12 +32,14 @@ class LinkedList
     }
   };
 
+  LinkedList(const L label) : LinkedList(new Node<L>(label)){};
+
   LinkedList() : LinkedList(nullptr){};
 
   ~LinkedList()
   {
     Node<L>* tmp = m_head;
-    while (tmp->next()) {
+    while (tmp && tmp->next()) {
       Node<L>* next = tmp->next();
 
       tmp->next(nullptr);
@@ -150,7 +57,7 @@ class LinkedList
     m_size++;
   }
 
-  void push_front(L value) { push_front(new Node<L>(value)); }
+  void push_front(const L value) { push_front(new Node<L>(value)); }
 
   void push_back(Node<L>* node)
   {
@@ -171,9 +78,9 @@ class LinkedList
     m_size++;
   }
 
-  void push_back(L value) { push_back(new Node<L>(value)); }
+  void push_back(const L value) { push_back(new Node<L>(value)); }
 
-  void insert(Node<L>* node, size_t position)
+  void insert(Node<L>* node, const size_t position)
   {
     if (position > m_size) {
       std::cout << "Position out of range." << std::endl;
@@ -200,7 +107,7 @@ class LinkedList
     m_size++;
   }
 
-  void insert(L value, size_t position)
+  void insert(const L value, const size_t position)
   {
     insert(new Node<L>(value), position);
   }
@@ -252,10 +159,11 @@ class LinkedList
     m_size--;
   }
 
-  void erase(size_t position)
+  void erase(const size_t position, const bool debug = true)
   {
     if (position >= m_size) {
-      std::cout << "Position out of range." << std::endl;
+      if (debug)
+        std::cout << "Position out of range." << std::endl;
       return;
     }
     if (!position) {
@@ -284,9 +192,52 @@ class LinkedList
     m_size--;
   }
 
+  void erase(Node<L>* node) { erase(find(node), false); }
+
+  void erase(const L label) { erase(find(label), false); }
+
+  size_t find(Node<L>* node, const bool debug = true) const
+  {
+    size_t position = 0;
+    Node<L>* tmp = m_head;
+    while (node != tmp && tmp) {
+      position++;
+      tmp = tmp->next();
+    }
+
+    if (debug && (position == m_size))
+      std::cout << "Node not in list." << std::endl;
+    return position;
+  }
+
+  size_t find(const LabelType label, const bool debug = true) const
+  {
+    size_t position = 0;
+    Node<L>* node = m_head;
+    while (node && label != node->label()) {
+      position++;
+      node = node->next();
+    }
+
+    if (debug && (position == m_size))
+      std::cout << "Key not in list." << std::endl;
+    return position;
+  }
+
   Node<L>* front() const { return m_head; }
 
   Node<L>* back() const { return m_tail; }
+
+  Node<L>* at(const size_t position) const
+  {
+    if (position >= m_size)
+      return nullptr;
+    Node<L>* node = m_head;
+    for (size_t i = 0; i < position && node; ++i) {
+      node = node->next();
+    }
+    return node;
+  }
 
   size_t size() const { return m_size; }
 
@@ -317,9 +268,13 @@ class LinkedEdgeList : public LinkedList<LabelType>
 
  public:
   LinkedEdgeList(EdgeNode<L, E>* head) : LinkedList<L>::LinkedList(head){};
+
+  LinkedEdgeList(const L& label, const E& edge)
+      : LinkedEdgeList(new EdgeNode<L, E>(label, nullptr, edge)){};
+
   LinkedEdgeList() : LinkedList<L>::LinkedList(){};
 
-  void push_front(L value, E edge)
+  void push_front(const L& value, const E& edge)
   {
     EdgeNode<L, E>* node = new EdgeNode<L, E>(value, nullptr, edge);
     push_front(node);
@@ -332,13 +287,13 @@ class LinkedEdgeList : public LinkedList<LabelType>
     LinkedList<L>::push_front(node);
   }
 
-  void push_back(E edge, L value)
+  void push_back(const E& edge, const L& value)
   {
     EdgeNode<L, E>* node = new EdgeNode<L, E>(value);
     push_back(edge, node);
   }
 
-  void push_back(E edge, EdgeNode<L, E>* node)
+  void push_back(const E& edge, EdgeNode<L, E>* node)
   {
     node->next(nullptr, E());
     node->edge(E());
@@ -346,7 +301,7 @@ class LinkedEdgeList : public LinkedList<LabelType>
     LinkedList<L>::push_back(node);
   }
 
-  void insert(L value, E edge, size_t position)
+  void insert(const L& value, const E& edge, const size_t position)
   {
     insert(new EdgeNode<L, E>(value, nullptr, edge), position);
   }
@@ -375,6 +330,30 @@ class LinkedEdgeList : public LinkedList<LabelType>
   EdgeNode<L, E>* back() const
   {
     return static_cast<EdgeNode<L, E>*>(LinkedList<L>::back());
+  }
+
+  std::optional<E> edgeTo(EdgeNode<L, E>* toNode) const
+  {
+    EdgeNode<L, E>* node = front();
+    while (node && node->next() && node->next() != toNode)
+      node = node->next();
+
+    if (node->next())
+      return std::optional<E>(node->edge());
+    else
+      return std::nullopt;
+  }
+
+  std::optional<E> edgeTo(const L& toLabel) const
+  {
+    EdgeNode<L, E>* node = front();
+    while (node && node->next() && node->next()->label() != toLabel)
+      node = node->next();
+
+    if (node->next())
+      return std::optional<E>(node->edge());
+    else
+      return std::nullopt;
   }
 
   friend std::ostream& operator<<(std::ostream& stream,

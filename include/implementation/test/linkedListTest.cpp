@@ -1,52 +1,17 @@
-#include "../../include/implementation/linkedListImpl.hpp"
+#include "../../header.hpp"
+#include "../lists/linkedListImpl.hpp"
+
+
+using namespace helper;
+using namespace linked_lists;
 
 
 int main()
 {
-  using namespace linked_lists;
-
-  {
-    Node<int>* foo = new Node<int>(0, new Node<int>(3));
-    std::cout << "this: " << *foo << std::endl;
-    std::cout << "label: " << (*foo)() << std::endl;
-    std::cout << "next: " << (*foo->next())() << std::endl;
-
-    (*foo)(3);
-    foo->next(new Node<int>(5));
-
-    std::cout << "this: " << *foo << std::endl;
-    std::cout << "label: " << (*foo)() << std::endl;
-    std::cout << "next: " << (*foo->next())() << std::endl;
-
-    delete foo;
-  }
-
-  {
-    EdgeNode<std::string, int>* foo = new EdgeNode<std::string, int>(
-      "foo", new EdgeNode<std::string, int>("bar"), 5);
-
-    std::cout << "this: " << *foo << std::endl;
-    std::cout << "label: " << (*foo)() << std::endl;
-    std::cout << "next: " << (*foo->next())() << std::endl;
-    std::cout << "edge: " << foo->edge() << std::endl;
-
-    (*foo)("foobar");
-    foo->edge(10);
-    std::cout << "this: " << *foo << std::endl;
-    foo->next(new EdgeNode<std::string, int>("acid"), 10);
-    std::cout << "next: " << (*foo->next())() << std::endl;
-
-    std::cout << "edge: " << foo->edge() << std::endl;
-    foo->edge(15);
-    std::cout << "edge: " << foo->edge() << std::endl;
-
-    std::cout << "this: " << *foo << std::endl;
-    delete foo;
-  }
-
   {
     LinkedList<int>* list = new LinkedList<int>(new Node<int>(0));
-    list->push_front(new Node<int>(1));
+    Node<int>* node = new Node<int>(1);
+    list->push_front(node);
 
     std::cout << "list: " << *list << std::endl;
     std::cout << "head:" << *list->front() << std::endl;
@@ -54,6 +19,7 @@ int main()
     std::cout << "list size: " << list->size() << std::endl;
 
     list->push_front(2);
+    list->push_front(new Node<int>(3));
     list->push_back(4);
     list->push_back(new Node<int>(3));
     std::cout << "list: " << *list << std::endl;
@@ -74,10 +40,20 @@ int main()
     std::cout << "list: " << *list << std::endl;
     std::cout << "list size: " << list->size() << std::endl;
 
-    list->erase(100);
-    list->erase(3);
+    std::cout << "find node " << *node << " = " << list->find(node)
+              << std::endl;
+    std::cout << "find label 4 "
+              << " = " << list->find((int)4) << std::endl;
+
+    list->erase((size_t)100);
+    list->erase((size_t)3);
+    list->erase((int)5);
+    list->erase(node);
+
+    std::cout << "list at 3: " << *list->at((size_t)3) << std::endl;
     std::cout << "list: " << *list << std::endl;
     std::cout << "list size: " << list->size() << std::endl;
+
     delete list;
   }
 
@@ -119,6 +95,9 @@ int main()
     list->erase(3);
     std::cout << "list: " << *list << std::endl;
     std::cout << "list size: " << list->size() << std::endl;
+
+    std::cout << "edge to node: " << list->edgeTo(node).value() << std::endl;
+    std::cout << "edge to '(G)':" << list->edgeTo("G").value() << std::endl;
     delete list;
   }
   return 0;

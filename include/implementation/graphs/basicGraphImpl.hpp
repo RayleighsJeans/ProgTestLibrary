@@ -2,140 +2,11 @@
 
 
 #include "../header.hpp"
+#include "vertexImpl.hpp"
 
 
 namespace graphs
 {
-template <typename VertexType>
-class VertexAdjacency : public std::vector<VertexType>
-{
- public:
-  bool addAdj(VertexType toVertex)
-  {
-    for (auto to : *this) {
-      if (to == toVertex) {
-        std::cout << "Vertex '" << toVertex->key() << "' already a neighbor"
-                  << std::endl;
-        return false;
-      }
-    }
-    this->push_back(toVertex);
-    return true;
-  }
-
-  bool removeAdj(VertexType toVertex)
-  {
-    for (auto to = this->begin(); to != this->end(); to++) {
-      if (*to == toVertex) {
-        this->erase(to);
-        return true;
-      }
-    }
-    std::cout << "\nVertex has no neighbour '" << toVertex->key() << "'"
-              << std::endl;
-    return false;
-  }
-
-  bool hasAdj(VertexType toVertex) const
-  {
-    for (auto& to : *this) {
-      if (to == toVertex) {
-        return true;
-      }
-    }
-    return false;
-  }
-};
-
-
-template <typename KeyType>
-class BasicVertex
-{
- protected:
-  KeyType m_key;
-
-  using Edges = VertexAdjacency<BasicVertex<KeyType>*>;
-  Edges m_edges;
-
-
- public:
-  BasicVertex(KeyType s) : m_key(s) {}
-  ~BasicVertex() = default;
-
-  KeyType key() const { return m_key; }
-
-  bool addAdj(BasicVertex<KeyType>* toVertex)
-  {
-    return m_edges.addAdj(toVertex);
-  }
-
-  bool removeAdj(BasicVertex<KeyType>* toVertex)
-  {
-    return m_edges.removeAdj(toVertex);
-  }
-
-  bool hasAdj(BasicVertex<KeyType>* toVertex)
-  {
-    return m_edges.hasAdj(toVertex);
-  }
-
-  Edges getNeighbors() const { return m_edges; }
-};
-
-
-template <typename KeyType, typename VertexType>
-class VertexMap : public std::map<KeyType, VertexType*>
-{
- public:
-  bool addVertex(VertexType* v)
-  {
-    if (!v)
-      return false;
-    if (this->find(v->key()) == this->end()) {
-      this->operator[](v->key()) = v;
-      return true;
-    }
-    std::cout << "Vertex '" << v->key() << "' already exists" << std::endl;
-    return false;
-  }
-
-  bool hasVertex(VertexType* v)
-  {
-    if (!v)
-      return false;
-    return (this->find(v->key()) != this->end());
-  }
-};
-
-
-template <typename KeyType, typename VertexType>
-class AdjacencyMatrix
-    : public std::vector<std::vector<std::pair<KeyType, bool>>>
-{
- private:
-  VertexMap<KeyType, VertexType>* m_map;
-
-
- public:
-  AdjacencyMatrix(VertexMap<KeyType, VertexType>* map) : m_map(map) {}
-
-  void update()
-  {
-    this->clear();
-    std::vector<std::pair<KeyType, bool>> vertexList;
-    for (auto& [keyA, vertexA] : *m_map) {
-      for (auto& [keyB, vertexB] : *m_map) {
-        vertexList.push_back(
-          std::pair<KeyType, bool>(vertexB->key(), vertexB->hasAdj(vertexA)));
-      }
-
-      this->push_back(vertexList);
-      vertexList.clear();
-    }
-  }
-};
-
-
 template <typename KeyType, typename VertexType>
 class DefaultGraph
 {
@@ -166,7 +37,9 @@ class BasicGraph : public DefaultGraph<KeyType, BasicVertex<KeyType>>
     fromVertex->addAdj(toVertex);
     m_matrix.update();
   }
+
   BasicGraph() = default;
+
   ~BasicGraph() = default;
 
   bool addVertex(VertexType* fromVertex, VertexType* toVertex)
