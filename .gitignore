@@ -178,3 +178,8 @@ leetcode/medium/treeOrderTraversal
 hackerrank/problems/bfsShortestReach.dSYM/Contents/Resources/DWARF/bfsShortestReach
 hackerrank/problems/bfsShortestReach.dSYM/Contents/Info.plist
 hackerrank/problems/bfsShortestReach.dSYM/Contents/Resources/Relocations/aarch64/bfsShortestReach.yml
+include/implementation/test/adjacencyTest
+include/implementation/test/basicGraphTest
+include/implementation/test/basicVertexTest
+include/implementation/test/linkedListTest
+include/implementation/test/nodesTest
