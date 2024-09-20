@@ -183,3 +183,7 @@ include/implementation/test/basicGraphTest
 include/implementation/test/basicVertexTest
 include/implementation/test/linkedListTest
 include/implementation/test/nodesTest
+sony/evaluate
+sony/evaluate.dSYM/Contents/Info.plist
+sony/evaluate.dSYM/Contents/Resources/DWARF/evaluate
+sony/evaluate.dSYM/Contents/Resources/Relocations/aarch64/evaluate.yml
