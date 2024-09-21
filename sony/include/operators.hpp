@@ -1,31 +1,25 @@
-#pragma once
-
-#include <functional>
-
-
 namespace math
 {
-class Operators
+namespace operators
 {
- private:
-  std::function<int(int, int)> accumulate = [](const int& a, const int& b)
-  {
-    return (a + b);
-  };
+int accumulate(const int& a, const int& b)
+{
+  return (a + b);
+};
 
-  std::function<int(int, int)> multiply = [](const int& a, const int& b)
-  {
-    return (a * b);
-  };
+int multiply(const int& a, const int& b)
+{
+  return (a * b);
+};
 
-  std::function<int(int, int)> divide = [](const int& a, const int& b)
-  {
-    return (a / b);
-  };
+int divide(const int& a, const int& b)
+{
+  return (a / b);
+};
 
-  std::function<int(int, int)> subtract = [](const int& a, const int& b)
-  {
-    return (a - b);
-  };
-} // class Operators
+int subtract(const int& a, const int& b)
+{
+  return (a - b);
+};
+} // namespace operators
 } // namespace math

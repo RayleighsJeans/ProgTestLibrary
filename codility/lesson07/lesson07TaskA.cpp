@@ -1,7 +1,7 @@
 #include "../../include/header.hpp"
 
 
-constexpr int N = 10; // 200000
+constexpr int N = 20000; // 200000
 
 
 using namespace helper;
@@ -125,12 +125,19 @@ int main()
 
   Timer t;
   t.tick();
-  // result = solution(brackets);
-  // result = solutionB(brackets);
+  result = solution(brackets);
+  t.tock();
+  print<char[], int>("result", result);
+
+  t.tick();
+  result = solutionB(brackets);
+  t.tock();
+  print<char[], int>("resultB", result);
+
+  t.tick();
   result = solutionC(brackets);
   t.tock();
-
-  print<char[], int>("result", result);
+  print<char[], int>("resultC", result);
 
   return 0;
 } // main
