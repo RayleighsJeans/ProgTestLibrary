@@ -416,3 +416,7 @@ sony/test/CMakeFiles/manual_tests.dir/link.txt
 sony/test/CMakeFiles/manual_tests.dir/progress.make
 sony/Testing/Temporary/CTestCostData.txt
 sony/Testing/Temporary/LastTest.log
+sony/source/evaluate
+sony/test/CMakeFiles/automatic_tests.dir/compiler_depend.internal
+sony/test/CMakeFiles/manual_tests.dir/compiler_depend.internal
+sony/Testing/Temporary/LastTestsFailed.log

@@ -1,10 +1,10 @@
 #include "../include/evaluate.hpp"
-
+#include <iostream>
 
 int main()
 {
-  const char expression[] = "1 + 3";
+  std::string string = "-9783(1617-1376(((*(";
   int result;
-  evaluate(expression, result);
+  evaluate(string.c_str(), result);
   return 0;
 }

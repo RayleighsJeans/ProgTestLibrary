@@ -7,7 +7,16 @@
 #include "operators.hpp"
 
 
-using OperatorType = int (*)(const int&, const int&);
+using OperatorType = double (*)(const double&, const double&);
+
+enum CharType
+{
+  None,
+  Number,
+  Operator,
+  OpenBracket,
+  CloseBracket
+};
 
 
 bool isOperator(std::string::iterator& iterator,
@@ -36,17 +45,17 @@ bool isOperator(std::string::iterator& iterator,
 }
 
 
-int countNumbers(std::string::iterator& iterator)
+double countNumbers(std::string::iterator& iterator)
 {
   std::string::iterator start = iterator;
   while (isdigit(*(iterator))) {
     iterator++;
   }
-  return std::stoi(std::string(start, iterator));
+  return (double)std::stol(std::string(start, iterator));
 }
 
 
-bool isNumeral(std::string::iterator& iterator, std::list<int>& numbers)
+bool isNumeral(std::string::iterator& iterator, std::list<double>& numbers)
 {
   if (*iterator == '-') {
     if (isdigit(*(iterator + 1))) {
@@ -75,12 +84,30 @@ bool leadingBracket(std::string::iterator& iterator)
 }
 
 
-int compute(std::list<int>& numbers,
-            std::list<int (*)(const int&, const int&)>& operators)
+double compute(std::list<double>& numbers, std::list<OperatorType>& operators)
 {
-  int result = numbers.front();
-  numbers.pop_front();
+  std::list<double>::iterator numIterator = numbers.begin();
+  std::list<OperatorType>::iterator opIterator = operators.begin();
+  while (opIterator != operators.end() && numIterator != numbers.end()) {
+    if (*opIterator == math::operators::divide ||
+        *opIterator == math::operators::multiply) {
+      auto nextNumber = numIterator;
+      std::advance(nextNumber, 1);
+      double priorityResult = (*opIterator)(*numIterator, *nextNumber);
 
+      opIterator = operators.erase(opIterator);
+      numbers.erase(nextNumber);
+      std::list<double>::iterator position = numbers.erase(numIterator);
+      numIterator = numbers.insert(position, priorityResult);
+    }
+    else {
+      opIterator++;
+      numIterator++;
+    }
+  }
+
+  double result = numbers.front();
+  numbers.pop_front();
   while (!operators.empty()) {
     result = operators.front()(result, numbers.front());
     operators.pop_front();
@@ -90,34 +117,67 @@ int compute(std::list<int>& numbers,
 }
 
 
-std::optional<int> parse(std::string& expression,
-                         std::string::iterator& iterator,
-                         bool inParentheses = false)
+std::optional<double> parse(std::string& expression,
+                            std::string::iterator& iterator,
+                            bool inParentheses = false)
 {
-  std::list<int> numbers;
-  std::list<int (*)(const int&, const int&)> operators;
+  std::list<double> numbers;
+  std::list<OperatorType> operators;
 
-  for (; iterator < expression.end(); iterator++) {
-    if (*iterator == ' ')
+  CharType lastChar = CharType::None;
+
+  std::string::iterator before;
+  while (iterator < expression.end()) {
+    before = iterator;
+
+    if (*iterator == ' ') {
+      iterator++;
       continue;
+    }
 
     if (isNumeral(iterator, numbers)) {
+      if (lastChar == CharType::Number || lastChar == CharType::CloseBracket) {
+        if (numbers.back() > 0)
+          return std::nullopt;
+        else if (std::signbit(numbers.back())) {
+          numbers.pop_back();
+          if (isOperator(before, operators)) {
+            lastChar = CharType::Operator;
+            iterator = before;
+            iterator++;
+          }
+        }
+      }
+      else {
+        lastChar = CharType::Number;
+      }
       continue;
     }
     else if (isOperator(iterator, operators)) {
+      if (lastChar == CharType::Operator || lastChar == CharType::None)
+        return std::nullopt;
+      lastChar = CharType::Operator;
+      iterator++;
       continue;
     }
     else if (leadingBracket(iterator)) {
+      if (lastChar == CharType::CloseBracket)
+        return std::nullopt;
+
       iterator++;
       auto inBrackets = parse(expression, iterator, true);
       if (inBrackets.has_value()) {
         numbers.push_back(inBrackets.value());
+        lastChar = CharType::CloseBracket;
       }
       else {
         return std::nullopt;
       }
     }
     else if (closingBracket(iterator)) {
+      if (lastChar == CharType::None)
+        return std::nullopt;
+
       if (inParentheses) {
         iterator++;
         inParentheses = false;
@@ -147,8 +207,18 @@ bool evaluate(const char* expression, int& result)
   std::string::iterator start = phrase.begin();
   auto work = parse(phrase, start);
   if (work.has_value()) {
-    result = work.value();
+    if (!std::isfinite(work.value())) {
+      printf(">> Expression evaluates to NaN/Inf: %lf\n", work.value());
+      return false;
+    }
+
+    printf(
+      ">> Valid expression with result %lf"
+      " before integer truncation.\n",
+      work.value());
+    result = (int)work.value();
     return true;
   }
+  printf(">> Invalid expression passed.\n");
   return false;
 }

@@ -2,22 +2,22 @@ namespace math
 {
 namespace operators
 {
-int accumulate(const int& a, const int& b)
+double accumulate(const double& a, const double& b)
 {
   return (a + b);
 };
 
-int multiply(const int& a, const int& b)
+double multiply(const double& a, const double& b)
 {
   return (a * b);
 };
 
-int divide(const int& a, const int& b)
+double divide(const double& a, const double& b)
 {
   return (a / b);
 };
 
-int subtract(const int& a, const int& b)
+double subtract(const double& a, const double& b)
 {
   return (a - b);
 };

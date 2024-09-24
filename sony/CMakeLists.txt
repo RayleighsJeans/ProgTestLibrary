@@ -16,7 +16,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
 SET(CMAKE_CXX_FLAGS
-    "-Ofast -DNDEBUG -march=native -fpic -ftree-vectorize -std=c++23 -Wpedantic -pedantic-errors -Wall")
+    "-g -O3 -ffp-model=precise -std=c++23 -Wpedantic -pedantic-errors -Wall"
+)
 
 set(SOURCE
     source/evaluate.cpp
@@ -25,7 +26,7 @@ set(SOURCE
 )
 add_executable(eval ${SOURCE})
 
-include(CTest)
 enable_testing()
+find_package(GTest REQUIRED)
 
 add_subdirectory(test)
