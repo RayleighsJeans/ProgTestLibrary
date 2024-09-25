@@ -1,6 +1,7 @@
 set(TEST_HEADERS 
     ${PROJECT_DIR}/include/operators.hpp 
     ${PROJECT_DIR}/include/evaluate.hpp
+    ${PROJECT_DIR}/include/shuntingYard.hpp
     ${PROJECT_DIR}/test/include/map.hpp
     ${PROJECT_DIR}/test/include/distributions.hpp
 
@@ -21,6 +22,19 @@ target_link_libraries(
 add_test(
     NAME manual_tests
     COMMAND manual_tests
+)
+
+add_executable(manual_SY_tests
+    manualShuntingYardTests.cpp
+    ${TEST_HEADERS}
+)
+target_link_libraries(
+    manual_SY_tests
+    GTest::gtest
+    GTest::gtest_main)
+add_test(
+    NAME manual_SY_tests
+    COMMAND manual_SY_tests
 )
 
 add_executable(automatic_tests

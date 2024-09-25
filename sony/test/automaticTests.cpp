@@ -2,6 +2,8 @@
 #include <gtest/gtest.h>
 
 #include "../include/evaluate.hpp"
+#include "../include/shuntingYard.hpp"
+
 #include "include/distributions.hpp"
 #include "include/map.hpp"
 
