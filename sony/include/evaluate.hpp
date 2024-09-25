@@ -44,10 +44,18 @@ bool isOperator(std::string::iterator& iterator,
 /// larger number from individual digits.
 /// @param iterator Pointer-to first character to check.
 /// @return Long number found.
-double countNumbers(std::string::iterator& iterator)
+std::optional<double> countNumbers(std::string::iterator& iterator)
 {
   std::string::iterator start = iterator;
+  bool hasDecimal = false;
   while (isdigit(*iterator) || *iterator == '.') {
+    if (*iterator == '.') {
+      if (!hasDecimal)
+        hasDecimal = true;
+
+      else
+        return std::nullopt;
+    }
     iterator++;
   }
   /// @TODO: std::stod has its limits. Better way?
@@ -64,12 +72,18 @@ bool isNumeral(std::string::iterator& iterator, std::list<double>& numbers)
   if (*iterator == '-') {
     if (isdigit(*(iterator + 1))) {
       iterator++;
-      numbers.push_back(-1 * countNumbers(iterator));
+      auto numeral = countNumbers(iterator);
+      if (!numeral.has_value())
+        return false;
+      numbers.push_back(-1 * numeral.value());
       return true;
     }
   }
   else if (isdigit(*iterator)) {
-    numbers.push_back(countNumbers(iterator));
+    auto numeral = countNumbers(iterator);
+    if (!numeral.has_value())
+      return false;
+    numbers.push_back(numeral.value());
     return true;
   }
   return false;

@@ -186,6 +186,21 @@ TEST(ManualTests, SimpleTestX)
   EXPECT_FALSE(evaluate(expression.c_str(), result));
 }
 
+TEST(ManualTests, SimpleTestY)
+{
+  std::string expression = "2.2 + 4.5";
+  int result;
+  EXPECT_TRUE(evaluate(expression.c_str(), result));
+  EXPECT_EQ(result, 6);
+}
+
+TEST(ManualTests, SimpleTestZ)
+{
+  std::string expression = "2.2.2 + 4.5";
+  int result;
+  EXPECT_FALSE(evaluate(expression.c_str(), result));
+}
+
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
