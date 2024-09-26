@@ -1,8 +1,9 @@
 #pragma once
 
+#include <cmath>
 #include <list>
-#include <string>
 #include <optional>
+#include <string>
 
 #include "characters.hpp"
 #include "operators.hpp"

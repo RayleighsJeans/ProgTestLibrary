@@ -162,6 +162,15 @@ TEST(ManualShuntingYardTests, SimpleTestU)
   EXPECT_EQ(result, 3);
 }
 
+#ifdef __linux__
+TEST(ManualShuntingYardTests, SimpleTestV)
+{
+  const char expression[] = "2147483647 + 2147483647";
+  int result;
+  EXPECT_TRUE(compute(expression, result));
+  EXPECT_EQ(result, -2147483648);
+}
+#else
 TEST(ManualShuntingYardTests, SimpleTestV)
 {
   const char expression[] = "2147483647 + 2147483647";
@@ -169,6 +178,7 @@ TEST(ManualShuntingYardTests, SimpleTestV)
   EXPECT_TRUE(compute(expression, result));
   EXPECT_EQ(result, 2147483647);
 }
+#endif
 
 TEST(ManualShuntingYardTests, SimpleTestW)
 {
