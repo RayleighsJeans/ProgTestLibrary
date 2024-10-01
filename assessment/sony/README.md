@@ -13,4 +13,4 @@
     - include/shuntingYard.hpp is derived from the namesake Shunting-Yard algorithm from Djikstra et al. to evaluate regular arithmetic expressions accurately (resource material found only after writing my own solution and looking for a verification method to test against :^)
 
 > The accompanying test suite can be built and executed with (at source directory .) "cmake . && make && ctest". It runs comprehensive manual tests for a multitude of edge/error cases and large automated tests (many with validity and one invalid). 
-> Solutions have been "designed" and built with g++ 14.2.0 (-std=c++23" ffp-model=precise -Wpedantic -pedantic-errors -Wall), same as in the CMakeLists etc. (MacOS 15.0 Sequoia, XCode v2409, CMake 3.30.3)
+> Solutions have been "designed" and built with g++ 14.2.0/11.4.0 (-std=c++23 ffp-model=precise -Wpedantic -pedantic-errors -Wall), same as in the CMakeLists etc. (MacOS 15.0 Sequoia, XCode v2409, CMake 3.30.3)
