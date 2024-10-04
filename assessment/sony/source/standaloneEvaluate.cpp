@@ -1,10 +1,9 @@
 #include <assert.h>
-#include <vector>
-
 #include <cmath>
 #include <list>
 #include <optional>
 #include <string>
+#include <vector>
 
 
 /// @brief Character (char*) type classification enumerator.
@@ -16,7 +15,6 @@ enum CharType
   OpenBracket,  ///< Opening/leading parentheses.
   CloseBracket, ///< Closing parentheses.
 };
-
 
 namespace math
 {
@@ -97,11 +95,19 @@ bool isOperator(std::string::iterator& iterator,
 /// larger number from individual digits.
 /// @param iterator Pointer-to first character to check.
 /// @return Long number found.
-double countNumbers(std::string::iterator& iterator,
-                    const std::string::iterator& end)
+std::optional<double> countNumbers(std::string::iterator& iterator,
+                                   const std::string::iterator& end)
 {
   std::string::iterator start = iterator;
+  bool hasDecimal = false;
   while (iterator != end && (isdigit(*iterator) || *iterator == '.')) {
+    if (*iterator == '.') {
+      if (!hasDecimal)
+        hasDecimal = true;
+
+      else
+        return std::nullopt;
+    }
     iterator++;
   }
   /// @TODO: std::stod has its limits. Better way?
@@ -119,12 +125,18 @@ bool isNumeral(std::string::iterator& iterator,
   if (*iterator == '-') {
     if (isdigit(*(iterator + 1))) {
       iterator++;
-      numbers.push_back(-1 * countNumbers(iterator, end));
+      auto numeral = countNumbers(iterator, end);
+      if (!numeral.has_value())
+        return false;
+      numbers.push_back(-1 * numeral.value());
       return true;
     }
   }
   else if (isdigit(*iterator)) {
-    numbers.push_back(countNumbers(iterator, end));
+    auto numeral = countNumbers(iterator, end);
+    if (!numeral.has_value())
+      return false;
+    numbers.push_back(numeral.value());
     return true;
   }
   return false;
@@ -154,8 +166,8 @@ bool leadingBracket(std::string::iterator& iterator)
 double compute(std::list<double>& numbers, std::list<OperatorType>& operators)
 {
   // First, do all multiplications/divisions and
-  // replace/delete from both lists accordingly. Also left to right, no brackets
-  // left here.
+  // replace/delete from both lists accordingly. Also left to right, no
+  // brackets left here.
   std::list<double>::iterator numIterator = numbers.begin();
   std::list<OperatorType>::iterator opIterator = operators.begin();
   while (opIterator != operators.end() && numIterator != numbers.end()) {
@@ -356,7 +368,9 @@ int main()
              "-4 / 10 * 10 + -8",
              "3 - -1 + -5 / 5",
              "2147483647 + 2147483647",
-             "1 / 0"};
+             "1 / 0",
+             "2.2 + 4.5",
+             "2.2.2 + 4.5"};
 
   std::vector<std::pair<bool, int>> results;
   results = {
@@ -371,7 +385,8 @@ int main()
     std::pair<bool, int>(false, -1),         std::pair<bool, int>(false, -1),
     std::pair<bool, int>(false, -1),         std::pair<bool, int>(false, -1),
     std::pair<bool, int>(true, -12),         std::pair<bool, int>(true, 3),
-    std::pair<bool, int>(true, -2147483648), std::pair<bool, int>(false, -1)};
+    std::pair<bool, int>(true, -2147483648), std::pair<bool, int>(false, -1),
+    std::pair<bool, int>(true, 6),           std::pair<bool, int>(false, -1)};
 
   int thisResult;
   for (size_t i = 0; i < strings.size() && i < results.size(); i++) {

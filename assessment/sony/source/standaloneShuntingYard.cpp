@@ -1,10 +1,10 @@
 #include <assert.h>
-#include <vector>
-
-#include <cmath>
-#include <list>
+#include <math.h>
+#include <deque>
 #include <optional>
 #include <string>
+#include <tuple>
+#include <vector>
 
 
 /// @brief Character (char*) type classification enumerator.
@@ -17,318 +17,420 @@ enum CharType
   CloseBracket, ///< Closing parentheses.
 };
 
+#ifdef _WIN32
+namespace std
+{
+bool isfinite(double arg)
+{
+  return ((arg == arg) && (arg != std::numeric_limits<double>::infinity()) &&
+          (arg != -std::numeric_limits<double>::infinity()));
+}
+} // namespace std
+#endif //  __windows__
 
-namespace math
+/// @brief Shunting-Yard algorithm:
+/// >> "for parsing arithmetical or logical expressions,
+///      or a combination of both, specified in infix notation"
+/// source (22.09.24): https://en.wikipedia.org/wiki/Shunting_yard_algorithm
+namespace shunting_yard
 {
-namespace operators
+/// @brief Container object for Shunting-Yard character (description).
+class Character
 {
-/// @brief Accumulative/summation (operator +) function.
-/// @param a Addend one.
-/// @param b Addend two.
-/// @return Sum.
-double accumulate(const double& a, const double& b)
-{
-  return (a + b);
+ public:
+  /// @brief Shorthand for character type enumeration.
+  using Type = CharType;
+
+ private:
+  Type m_type;          ///< This characters type.
+  std::string m_string; ///< Actual character string.
+  int m_priority;       ///< Precedence over other characters.
+  bool m_right;         ///< Right side association.
+  bool m_unary;         ///< Flag for unary type character.
+
+ public:
+  /// @brief ctor. Fill necessary variable fields.
+  /// @param type Its type.
+  /// @param s Its string.
+  /// @param priority Its precedence (default -1).
+  /// @param right Its right-hand-side association (default ).
+  /// @param unary Its unary character flag.
+  Character(Type type, const std::string& s, int priority = -1,
+            bool right = false, bool unary = false)
+      : m_type{type},
+        m_string(s),
+        m_priority{priority},
+        m_right{right},
+        m_unary{unary} {};
+
+  /// @brief Get its type.
+  /// @return The type.
+  Type type() const { return m_type; }
+
+  /// @brief Get the string.
+  /// @return The string.
+  std::string string() const { return m_string; }
+
+  /// @brief Get its precedence.
+  /// @return The priority.
+  int priority() const { return m_priority; }
+
+  /// @brief Get its right side association.
+  /// @return Its precedence.
+  bool right() const { return m_right; }
+
+  /// @brief Get its unary character.
+  /// @return Its unary-type flag.
+  bool unary() const { return m_unary; }
 };
 
-/// @brief Multiplication (operator *) function.
-/// @param a Multiplier one.
-/// @param b Multiplier two.
-/// @return Product.
-double multiply(const double& a, const double& b)
+/// @brief Parse std container expression to stack of usable Shunting-Yard
+/// characters.
+/// @param expression Desired expression.
+/// @return Stack of parsed characters.
+std::optional<std::deque<Character>> toCharacters(std::string& expression)
 {
-  return (a * b);
-};
+  std::deque<Character> characters;
 
-/// @brief Division (operator /) function.
-/// @param a Dividend.
-/// @param b Divisor.
-/// @return Quotient.
-double divide(const double& a, const double& b)
-{
-  return (a / b);
-};
-
-/// @brief Subtraction (operator -) function.
-/// @param a Minuend.
-/// @param b Subtrahend.
-/// @return Difference.
-double subtract(const double& a, const double& b)
-{
-  return (a - b);
-};
-} // namespace operators
-} // namespace math
-
-
-/// @brief Shorthand type for operator function signature.
-using OperatorType = double (*)(const double&, const double&);
-
-/// @brief Check if a given (pointer-to) character is an operator and remember.
-/// @param iterator Pointer-to character to check.
-/// @param operators List of operators to bookkeep this if found.
-/// @return Was an operator found?
-bool isOperator(std::string::iterator& iterator,
-                std::list<OperatorType>& operators)
-{
-  {
-    using namespace math::operators;
-
-    if (*iterator == '+') {
-      operators.push_back(accumulate);
-    }
-    else if (*iterator == '-') {
-      operators.push_back(subtract);
-    }
-    else if (*iterator == '*') {
-      operators.push_back(multiply);
-    }
-    else if (*iterator == '/') {
-      operators.push_back(divide);
-    }
-    else {
-      return false;
-    }
-    return true;
-  }
-}
-
-/// @brief Walk through an expression and concatenate a
-/// larger number from individual digits.
-/// @param iterator Pointer-to first character to check.
-/// @return Long number found.
-double countNumbers(std::string::iterator& iterator,
-                    const std::string::iterator& end)
-{
-  std::string::iterator start = iterator;
-  while (iterator != end && (isdigit(*iterator) || *iterator == '.')) {
-    iterator++;
-  }
-  /// @TODO: std::stod has its limits. Better way?
-  return std::stod(std::string(start, iterator));
-}
-
-/// @brief Check if a given (pointer-to) character is a numeral and remember.
-/// @param iterator Pointer-to character to check.
-/// @param numbers List of numbers to bookkeep this if found.
-/// @return Was a (longer) number found?
-bool isNumeral(std::string::iterator& iterator,
-               const std::string::iterator& end, std::list<double>& numbers)
-{
-  // Leading - means unary and not operator.
-  if (*iterator == '-') {
-    if (isdigit(*(iterator + 1))) {
-      iterator++;
-      numbers.push_back(-1 * countNumbers(iterator, end));
-      return true;
-    }
-  }
-  else if (isdigit(*iterator)) {
-    numbers.push_back(countNumbers(iterator, end));
-    return true;
-  }
-  return false;
-}
-
-/// @brief Check if a given (pointer-to) character is a closing bracket.
-/// @param iterator Pointer-to character to check.
-/// @return Was a closing parentheses found?
-bool closingBracket(std::string::iterator& iterator)
-{
-  return (*iterator == ')');
-}
-
-/// @brief Check if a given (pointer-to) character is a opening bracket.
-/// @param iterator Pointer-to character to check.
-/// @return Was a opening parentheses found?
-bool leadingBracket(std::string::iterator& iterator)
-{
-  return (*iterator == '(');
-}
-
-/// @brief From a given list of numbers and operators, calculate
-/// the result with respect to arithmetic laws (mnemonics).
-/// @param numbers List of floating point numbers.
-/// @param operators List of arithmetic operators.
-/// @return The computed result.
-double compute(std::list<double>& numbers, std::list<OperatorType>& operators)
-{
-  // First, do all multiplications/divisions and
-  // replace/delete from both lists accordingly. Also left to right, no brackets
-  // left here.
-  std::list<double>::iterator numIterator = numbers.begin();
-  std::list<OperatorType>::iterator opIterator = operators.begin();
-  while (opIterator != operators.end() && numIterator != numbers.end()) {
-    if (*opIterator == math::operators::divide ||
-        *opIterator == math::operators::multiply) {
-      auto nextNumber = numIterator;
-      std::advance(nextNumber, 1);
-      double priorityResult = (*opIterator)(*numIterator, *nextNumber);
-
-      opIterator = operators.erase(opIterator);
-      numbers.erase(nextNumber);
-      std::list<double>::iterator position = numbers.erase(numIterator);
-      numIterator = numbers.insert(position, priorityResult);
-    }
-    else {
-      opIterator++;
-      numIterator++;
-    }
-  }
-
-  // Finally, only +/- left, left to right.
-  double result = numbers.front();
-  numbers.pop_front();
-  while (!operators.empty()) {
-    result = operators.front()(result, numbers.front());
-    operators.pop_front();
-    numbers.pop_front();
-  }
-  return result;
-}
-
-/// @brief Parse a regular (in-/valid expression) to numbers and operators.
-/// Works recursively for brackets.
-/// @param expression Regular string expression to calculate result for.
-/// @param iterator Starting (pointer-to) character to begin evaluation.
-/// @param inParentheses Flag for evaluation inside brackets.
-/// @return If valid expression, yield floating point results, else empty.
-std::optional<double> parse(std::string& expression,
-                            std::string::iterator& iterator,
-                            bool inParentheses = false)
-{
-  std::list<double> numbers;
-  std::list<OperatorType> operators;
+  // Remember last know character.
+  Character::Type lastCharacter = Character::Type::None;
 
   const std::string::iterator end = expression.end();
-
-  // Remember last known character, begins with none.
-  CharType lastChar = CharType::None;
-  // Remember current/last known good poiter-to
-  // character for unaries/neg. numbers.
-  std::string::iterator before;
-  while (iterator < expression.end()) {
-    before = iterator;
-
-    // Pass on emtpy/space.
-    if (*iterator == ' ') {
-      iterator++;
+  for (std::string::iterator iterator = expression.begin();
+       iterator != expression.end(); iterator++) {
+    if (isblank(*iterator)) {
+      // Pass blanks.
       continue;
     }
+    else if (isdigit(*iterator)) {
+      std::string::iterator start = iterator;
 
-    // Numbers have precedence.
-    if (isNumeral(iterator, end, numbers)) {
-      if (lastChar == CharType::Number || lastChar == CharType::CloseBracket) {
-        if (numbers.back() > 0)
-          // No good combination.
-          return std::nullopt;
-        else if (std::signbit(numbers.back())) {
-          numbers.pop_back();
-          // Should be operator instead of negative number.
-          if (isOperator(before, operators)) {
-            lastChar = CharType::Operator;
-            iterator = before;
-            iterator++;
-          }
-        }
-      }
-      else {
-        lastChar = CharType::Number;
-      }
-      continue;
-    }
-    else if (isOperator(iterator, operators)) {
-      if (lastChar == CharType::Operator || lastChar == CharType::None)
-        // No good combination.
-        return std::nullopt;
-      lastChar = CharType::Operator;
-      iterator++;
-      continue;
-    }
-    else if (leadingBracket(iterator)) {
-      if (lastChar == CharType::CloseBracket)
-        return std::nullopt;
+      // Concatenate multy-digit numbers
+      while (iterator != end && (isdigit(*iterator) || *iterator == '.'))
+        ++iterator;
 
-      iterator++;
-      // Recursively resolve expressions inside
-      // parentheses so evaluation later becomes more easy.
-      auto inBrackets = parse(expression, iterator, true);
-      if (inBrackets.has_value()) {
-        numbers.push_back(inBrackets.value());
-        lastChar = CharType::CloseBracket;
-      }
-      else {
-        return std::nullopt;
-      }
-    }
-    else if (closingBracket(iterator)) {
-      if (lastChar == CharType::None)
-        // No good combination.
-        return std::nullopt;
+      std::string thisString = std::string(start, iterator);
+      characters.push_back(Character{Character::Type::Number, thisString});
+      iterator--;
 
-      // If in recursive, i.e. in-parentheses mode,
-      // finish up this level of nesting.
-      if (inParentheses) {
-        iterator++;
-        inParentheses = false;
-        break;
-      }
-      else {
-        // Wrong nesting.
+      if (lastCharacter == Character::Type::CloseBracket)
+        // No bueno combination.
         return std::nullopt;
-      }
+      lastCharacter = Character::Type::Number;
     }
     else {
-      // Unknown character.
+      // Everything else is assumed to be operators/unaries/brackets.
+      Character::Type type = Character::Type::None;
+      int precedence = -1;
+      bool rightAssociative = false;
+      bool unary = false;
+
+      char thisCharacter = *iterator;
+      switch (thisCharacter) {
+        case '(':
+        {
+          if (lastCharacter == Character::Type::CloseBracket ||
+              lastCharacter == Character::Type::Number)
+            // No bueno combination.
+            return std::nullopt;
+
+          type = Character::Type::OpenBracket;
+          lastCharacter = type;
+          break;
+        }
+        case ')':
+        {
+          if (lastCharacter == Character::Type::OpenBracket ||
+              lastCharacter == Character::Type::Operator)
+            // No bueno combination.
+            return std::nullopt;
+
+          type = Character::Type::CloseBracket;
+          lastCharacter = type;
+          break;
+        }
+        case '*':
+        {
+          type = Character::Type::Operator;
+          precedence = 3;
+          break;
+        }
+        case '/':
+        {
+          type = Character::Type::Operator;
+          precedence = 3;
+          break;
+        }
+        case '+':
+        {
+          type = Character::Type::Operator;
+          precedence = 2;
+          break;
+        }
+        case '-':
+        {
+          // If character is '-' is first preceded by another
+          // or leading bracket, it's a unary '-'. Note: 'm' is special
+          // name for unaries and has the highest precedence.
+          if (characters.empty() ||
+              characters.back().type() == Character::Type::Operator ||
+              characters.back().type() == Character::Type::OpenBracket) {
+            unary = true;
+            thisCharacter = 'm';
+            type = Character::Type::Operator;
+            precedence = 5;
+          }
+          else {
+            // Operator otherwise.
+            type = Character::Type::Operator;
+            precedence = 2;
+          }
+          break;
+        }
+        default:
+        {
+          if (thisCharacter != '\0')
+            // Everything besides terminating char is not allowed.
+            return std::nullopt;
+          break;
+        }
+      }
+
+      if (type == Character::Type::Operator) {
+        if (lastCharacter == Character::Type::OpenBracket ||
+            (!unary && (lastCharacter == Character::Type::None ||
+                        lastCharacter == Character::Type::Operator)))
+          // No bueno operator-like combinations.
+          return std::nullopt;
+        lastCharacter = type;
+      }
+
+      std::string thisString = std::string(1, thisCharacter);
+      characters.push_back(
+        Character{type, thisString, precedence, rightAssociative, unary});
+    }
+  }
+
+  if (lastCharacter == Character::Type::Operator ||
+      lastCharacter == Character::Type::OpenBracket)
+    // No bueno end character.
+    return std::nullopt;
+
+  return characters;
+}
+
+/// @brief Shunting-Yard algorithm (e.g. see Djikstra et al.)
+/// @param characters Stack of parsed character from the char/string expression.
+/// @return Stack of computable operators and numbers (characters still).
+std::optional<std::deque<Character>> shuntingYard(
+  const std::deque<Character>& characters)
+{
+  std::deque<Character> queue;
+  std::vector<Character> stack;
+
+  for (Character character : characters) {
+    switch (character.type()) {
+      case Character::Type::Number:
+      {
+        // Numerals simply put through.
+        queue.push_back(character);
+        break;
+      }
+      case Character::Type::Operator:
+      {
+        Character operatorA = character;
+
+        // Walking through stack and negotiating operator precedences.
+        while (!stack.empty()) {
+          Character operatorB = stack.back();
+
+          // 1: operatorA is left-ass. and precedence is less or equal
+          // 2: operatorA if right-ass. and precedence is less
+          // -> pop operatorB off stack and move to output
+          if ((!operatorA.right() &&
+               operatorA.priority() <= operatorB.priority()) ||
+              (operatorA.right() &&
+               operatorA.priority() < operatorB.priority())) {
+            stack.pop_back();
+            queue.push_back(operatorB);
+            continue;
+          }
+          break;
+        }
+        // Place remainder.
+        stack.push_back(operatorA);
+        break;
+      }
+      case Character::Type::OpenBracket:
+      {
+        // Left parentheses go to stack.
+        stack.push_back(character);
+        break;
+      }
+      case Character::Type::CloseBracket:
+      {
+        bool match = false;
+
+        // Walk the stack until the character at the top is a left parenthesis.
+        // All else go to the output queue directly.
+        while (!stack.empty()) {
+          queue.push_back(stack.back());
+          stack.pop_back();
+          if (!stack.empty() &&
+              (stack.back().type() == Character::Type::OpenBracket)) {
+            match = true;
+            break;
+          }
+        }
+
+        if (!match && stack.empty()) {
+          // No matching left parentheses found, abort.
+          return std::nullopt;
+        }
+        // Left parentheses atomatically removed.
+        stack.pop_back();
+        break;
+      }
+      default:
+      {
+        return std::nullopt;
+      }
+    }
+  }
+
+  while (!stack.empty()) {
+    // If the stack top is a parentheses there is mismatched nesting.
+    if (stack.back().type() == Character::Type::OpenBracket) {
       return std::nullopt;
     }
+
+    // Pop onto the output queue.
+    queue.push_back(std::move(stack.back()));
+    stack.pop_back();
   }
-
-  if (inParentheses)
-    // Wrong nesting.
-    return std::nullopt;
-
-  // Unmatching number of numerals and operators.
-  if (numbers.size() != operators.size() + 1)
-    return std::nullopt;
-  return compute(numbers, operators);
+  return queue;
 }
 
-/// @brief Compute, if valid, an integer result for a
-// given regular text containing arithmetic expressions
-// etc. (numerals 0-9 and combinations thereof, * + - /, spaces).
-// Infs/NaNs will we cast as invalid also.
-/// @param expression Expression to evaluate.
-/// @param result If valid, calculated result, potentially down-cast integer.
-/// @return Flag if expression is valid for parsing/computation.
-bool evaluate(const char* expression, int& result)
+/// @brief Calculation of an arithmetic result, using the
+/// the Shunting-Yard approacha and infix notation to parse a
+/// regular expression if valid and flag as false otherwise.
+/// Allowed are numerals 0-9 and combinations thereof, * + - /, spaces.
+/// Infs/NaNs will we cast as invalid also.
+/// @param expression The presented expression.
+/// @param result If valid, the computed result.
+/// @return Validity flag.
+bool compute(const char* expression, int& result)
 {
-  // Iteration via. std container simpler.
   std::string phrase(expression);
-  std::string::iterator start = phrase.begin();
-  auto work = parse(phrase, start);
 
-  // Check results.
-  if (work.has_value()) {
-    // Consider NaN/Inf invalid since e.g. 1 / 0 might syntactically
-    // correct but still not a computable arithmetic expression.
-    if (!std::isfinite(work.value())) {
-      printf(">> Expression evaluates to NaN/Inf: %lf\n", work.value());
-      return false;
+  auto parsingResult = toCharacters(phrase);
+  if (!parsingResult.has_value())
+    // Failed parsing.
+    return false;
+
+  std::deque<Character> characters = parsingResult.value();
+  if (characters.empty())
+    // Empty, pass.
+    return false;
+
+  auto priorityQueue = shuntingYard(characters);
+  if (!priorityQueue.has_value())
+    // Failed Shunting-Yard queue-ing.
+    return false;
+  std::deque<Character> queue = priorityQueue.value();
+
+  std::vector<double> stack;
+  // Walk the queue and compute step-by-step by precedence.
+  while (!queue.empty()) {
+    const Character character = queue.front();
+    queue.pop_front();
+    switch (character.type()) {
+      case Character::Type::Number:
+      {
+        /// @TODO: stol has limits for conversion from arb. numerals.
+        stack.push_back(std::stod(character.string()));
+        break;
+      }
+      case Character::Type::Operator:
+      {
+        if (character.unary()) {
+          const double rhs = stack.back();
+          stack.pop_back();
+          switch (character.string()[0]) {
+            // Special case to flag for unary-type characters.
+            case 'm':
+            {
+              stack.push_back(-rhs);
+              break;
+            }
+            default:
+            {
+              return false;
+              break;
+            }
+          }
+        }
+        else {
+          // Usual operators and calculate, replace in queue.
+          const double rhs = stack.back();
+          stack.pop_back();
+          const double lhs = stack.back();
+          stack.pop_back();
+
+          switch (character.string()[0]) {
+            default:
+            {
+              return false;
+              break;
+            }
+            case '*':
+            {
+              stack.push_back(lhs * rhs);
+              break;
+            }
+            case '/':
+            {
+              stack.push_back(lhs / rhs);
+              break;
+            }
+            case '+':
+            {
+              stack.push_back(lhs + rhs);
+              break;
+            }
+            case '-':
+            {
+              stack.push_back(lhs - rhs);
+              break;
+            }
+          }
+        }
+        break;
+      }
+      default:
+      {
+        return false;
+      }
     }
-
-    printf(
-      ">> Valid expression with result %lf"
-      " before integer truncation.\n",
-      work.value());
-    ///@TODO: Truncation due to int cast limits result space heavily.
-    result = (int)work.value();
-    return true;
   }
-  printf(">> Invalid expression passed.\n");
-  return false;
-}
 
+  // NaN/inf check and int casts, debug before truncation.
+  // Consider NaN/Inf invalid since e.g. 1 / 0 might syntactically
+  // correct but still not a computable arithmetic expression.
+  result = stack.back();
+  if (!std::isfinite(stack.back())) {
+    printf(">> Expression evaluates to NaN/Inf: %lf\n", stack.back());
+    return false;
+  }
+  printf(
+    ">> Valid expression with result %lf"
+    " before integer truncation.\n",
+    stack.back());
+  ///@TODO: Truncation due to int cast limits result space heavily.
+  result = (int)stack.back();
+  return true;
+}
+} // namespace shunting_yard
 
 int main()
 {
@@ -356,7 +458,9 @@ int main()
              "-4 / 10 * 10 + -8",
              "3 - -1 + -5 / 5",
              "2147483647 + 2147483647",
-             "1 / 0"};
+             "1 / 0",
+             "2.2 + 4.5",
+             "2.2.2 + 4.5"};
 
   std::vector<std::pair<bool, int>> results;
   results = {
@@ -371,11 +475,13 @@ int main()
     std::pair<bool, int>(false, -1),         std::pair<bool, int>(false, -1),
     std::pair<bool, int>(false, -1),         std::pair<bool, int>(false, -1),
     std::pair<bool, int>(true, -12),         std::pair<bool, int>(true, 3),
-    std::pair<bool, int>(true, -2147483648), std::pair<bool, int>(false, -1)};
+    std::pair<bool, int>(true, -2147483648), std::pair<bool, int>(false, -1),
+    std::pair<bool, int>(true, 6),           std::pair<bool, int>(false, -1)};
 
   int thisResult;
   for (size_t i = 0; i < strings.size() && i < results.size(); i++) {
-    assert(results[i].first == evaluate(strings[i].c_str(), thisResult));
+    assert(results[i].first ==
+           shunting_yard::compute(strings[i].c_str(), thisResult));
     if (results[i].first) {
       assert(results[i].second == thisResult);
     }
