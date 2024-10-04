@@ -533,3 +533,9 @@ assessment/sony/Testing/Temporary/CTestCostData.txt
 assessment/sony/Testing/Temporary/LastTest.log
 assessment/sony/Testing/Temporary/LastTestsFailed.log
 hackerrank/hard/bfsShortestReach
+assessment/sony/eval
+assessment/sony/source/shuntingYard
+assessment/sony/source/singleSolution
+assessment/sony/source/standaloneEvaluate
+assessment/sony/source/standaloneShuntingYard
+assessment/thinkCell/source/interval_map
