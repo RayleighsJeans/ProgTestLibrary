@@ -1,14 +1,18 @@
 #pragma once
 
 
+#include <assert.h>
 #include <iostream>
 #include <map>
 
 
-template <typename K, typename V>
+template <typename KeyType, typename ValueType>
 class interval_map
 {
  private:
+  using V = ValueType;
+  using K = KeyType;
+
   V m_valBegin;
   std::map<K, V> m_map;
 
@@ -35,7 +39,7 @@ class interval_map
   /// @param keyBegin Range to assign with val beginning.
   /// @param keyEnd Range to assign with val end.
   /// @param val Valued to assign [keyBegin, keyEnd] to.
-  void assign(K const& keyBegin, K const& keyEnd, V const& val)
+  void assign(const K& keyBegin, const K& keyEnd, const V& value)
   {
     if (!(keyBegin < keyEnd)) {
       return; // Trivial, see above.
@@ -47,7 +51,7 @@ class interval_map
 
     if (m_map.empty() || keyEnd < m_map.begin()->first) {
       // Trivial case; new interval is outside of existing ones.
-      m_map.insert(std::make_pair(keyBegin, val));
+      m_map.insert(std::make_pair(keyBegin, value));
       m_map.insert(std::make_pair(keyEnd, m_valBegin));
       return;
     }
@@ -65,16 +69,16 @@ class interval_map
     auto residualValue = middleInterval->second;
 
     // Succeeding interval has same value.
-    if (upperInterval->second == val) {
+    if (upperInterval->second == value) {
       upperInterval = std::prev(middleInterval, -1);
     }
 
     // Preceding interval does not have same value.
     if (lowerInterval == m_map.begin() ||
-        !(std::prev(lowerInterval, 1)->second == val)) {
+        !(std::prev(lowerInterval, 1)->second == value)) {
       // Delete in-between intervals and insert new one.
       m_map.erase(lowerInterval, upperInterval);
-      m_map.insert(std::pair<K, V>(keyBegin, val));
+      m_map.insert(std::pair<K, V>(keyBegin, value));
     }
     else {
       // Matching value below, no need for new in-place interval.
@@ -83,7 +87,7 @@ class interval_map
 
     // Succeeding interval has not same value,
     // reimplement old interval leftover.
-    if (!(val == residualValue))
+    if (!(value == residualValue))
       m_map.insert(std::pair<K, V>(keyEnd, residualValue));
   } // assign
 
@@ -125,6 +129,43 @@ class interval_map
     return isOk;
   } // validate
 
+
+  void assignTest(const K& keyBegin, const K& keyEnd, const V& value)
+  {
+    const interval_map<K, V> beforeIntervalMap(*this);
+
+    assign(keyBegin, keyEnd, value);
+
+    if (keyBegin > keyEnd) {
+      assert(beforeIntervalMap.valueBegin() == m_valBegin);
+      assert(beforeIntervalMap.map() == m_map);
+    }
+    // else {
+    //   if (m_map.empty()) {
+    //     assert(m1[keyBegin - 1] == m.m_valBegin);
+    //     assert(m1[keyBegin] == val);
+    //     assert(m1[keyEnd - 1] == val);
+    //     assert(m1[keyEnd] == m.m_valBegin);
+    //   }
+    //   else {
+    //     for (int i = m.m_valBegin - 2; i < keyBegin; ++i) {
+    //       assert(m1[i] == m1[i]);
+    //     }
+
+    //     for (int i = keyBegin; i < keyEnd; ++i) {
+    //       assert(m1[i] == val);
+    //     }
+
+    //     for (int i = keyEnd; i <= prev(m1.m_map.end())->first; ++i) {
+    //       assert(m1[i] == m[i]);
+    //     }
+
+    //     assert(prev(m1.m_map.end())->second == m1.m_valBegin);
+    //   }
+    // }
+
+    // assert(m1.validate());
+  } // assignTest
 
   /// @brief  Look-up of the value associated with a given key.
   /// @param key Desired key for lookup.
