@@ -105,9 +105,17 @@ std::optional<std::deque<Character>> toCharacters(std::string& expression)
     else if (isdigit(*iterator)) {
       std::string::iterator start = iterator;
 
+      bool hasDecimal = false;
       // Concatenate multy-digit numbers
-      while (iterator != end && (isdigit(*iterator) || *iterator == '.'))
+      while (iterator != end && (isdigit(*iterator) || *iterator == '.')) {
+        if (*iterator == '.') {
+          if (!hasDecimal)
+            hasDecimal = true;
+          else
+            return std::nullopt;
+        }
         ++iterator;
+      }
 
       std::string thisString = std::string(start, iterator);
       characters.push_back(Character{Character::Type::Number, thisString});
