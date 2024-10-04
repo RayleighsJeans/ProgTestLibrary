@@ -1,13 +1,16 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <deque>
-#include <tuple>
-#include <optional>
 #include <math.h>
+#include <deque>
+#include <optional>
+#include <string>
+#include <tuple>
+#include <vector>
 
 #include "characters.hpp"
+#ifdef _WIN32
+#include "isfinite.hpp"
+#endif
 
 
 /// @brief Shunting-Yard algorithm:
@@ -77,6 +80,7 @@ std::optional<std::deque<Character>> toCharacters(std::string& expression)
   // Remember last know character.
   Character::Type lastCharacter = Character::Type::None;
 
+  const std::string::iterator end = expression.end();
   for (std::string::iterator iterator = expression.begin();
        iterator != expression.end(); iterator++) {
     if (isblank(*iterator)) {
@@ -87,7 +91,7 @@ std::optional<std::deque<Character>> toCharacters(std::string& expression)
       std::string::iterator start = iterator;
 
       // Concatenate multy-digit numbers
-      while (isdigit(*iterator) || *iterator == '.')
+      while (iterator != end && (isdigit(*iterator) || *iterator == '.'))
         ++iterator;
 
       std::string thisString = std::string(start, iterator);
@@ -257,7 +261,8 @@ std::optional<std::deque<Character>> shuntingYard(
         while (!stack.empty()) {
           queue.push_back(stack.back());
           stack.pop_back();
-          if (stack.back().type() == Character::Type::OpenBracket) {
+          if (!stack.empty() &&
+              (stack.back().type() == Character::Type::OpenBracket)) {
             match = true;
             break;
           }

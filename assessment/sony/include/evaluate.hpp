@@ -45,11 +45,12 @@ bool isOperator(std::string::iterator& iterator,
 /// larger number from individual digits.
 /// @param iterator Pointer-to first character to check.
 /// @return Long number found.
-std::optional<double> countNumbers(std::string::iterator& iterator)
+std::optional<double> countNumbers(std::string::iterator& iterator,
+                                   const std::string::iterator& end)
 {
   std::string::iterator start = iterator;
   bool hasDecimal = false;
-  while (isdigit(*iterator) || *iterator == '.') {
+  while (iterator != end && (isdigit(*iterator) || *iterator == '.')) {
     if (*iterator == '.') {
       if (!hasDecimal)
         hasDecimal = true;
@@ -67,13 +68,14 @@ std::optional<double> countNumbers(std::string::iterator& iterator)
 /// @param iterator Pointer-to character to check.
 /// @param numbers List of numbers to bookkeep this if found.
 /// @return Was a (longer) number found?
-bool isNumeral(std::string::iterator& iterator, std::list<double>& numbers)
+bool isNumeral(std::string::iterator& iterator,
+               const std::string::iterator& end, std::list<double>& numbers)
 {
   // Leading - means unary and not operator.
   if (*iterator == '-') {
     if (isdigit(*(iterator + 1))) {
       iterator++;
-      auto numeral = countNumbers(iterator);
+      auto numeral = countNumbers(iterator, end);
       if (!numeral.has_value())
         return false;
       numbers.push_back(-1 * numeral.value());
@@ -81,7 +83,7 @@ bool isNumeral(std::string::iterator& iterator, std::list<double>& numbers)
     }
   }
   else if (isdigit(*iterator)) {
-    auto numeral = countNumbers(iterator);
+    auto numeral = countNumbers(iterator, end);
     if (!numeral.has_value())
       return false;
     numbers.push_back(numeral.value());
@@ -114,8 +116,8 @@ bool leadingBracket(std::string::iterator& iterator)
 double compute(std::list<double>& numbers, std::list<OperatorType>& operators)
 {
   // First, do all multiplications/divisions and
-  // replace/delete from both lists accordingly. Also left to right, no brackets
-  // left here.
+  // replace/delete from both lists accordingly. Also left to right, no
+  // brackets left here.
   std::list<double>::iterator numIterator = numbers.begin();
   std::list<OperatorType>::iterator opIterator = operators.begin();
   while (opIterator != operators.end() && numIterator != numbers.end()) {
@@ -160,6 +162,8 @@ std::optional<double> parse(std::string& expression,
   std::list<double> numbers;
   std::list<OperatorType> operators;
 
+  const std::string::iterator end = expression.end();
+
   // Remember last known character, begins with none.
   CharType lastChar = CharType::None;
   // Remember current/last known good poiter-to
@@ -175,7 +179,7 @@ std::optional<double> parse(std::string& expression,
     }
 
     // Numbers have precedence.
-    if (isNumeral(iterator, numbers)) {
+    if (isNumeral(iterator, end, numbers)) {
       if (lastChar == CharType::Number || lastChar == CharType::CloseBracket) {
         if (numbers.back() > 0)
           // No good combination.
