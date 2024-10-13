@@ -1,8 +1,5 @@
-#include "../include/header.hpp"
-#include "fizzBuzzSampleTest.hpp"
-
-
-using namespace helper;
+#include <iostream>
+#include "fizzBuzz.hpp"
 
 
 void fizzBuzz(int n)

@@ -1,4 +1,6 @@
 set(TEST_HEADERS 
+    ${PROJECT_DIR}/include/keyType.hpp 
+    ${PROJECT_DIR}/include/valueType.hpp 
     ${PROJECT_DIR}/include/interval_map.hpp 
 )
 set(TEST_INCLUDE_DIRS
@@ -6,15 +8,28 @@ set(TEST_INCLUDE_DIRS
     ${PROJECT_DIR}/test
 )
 
-add_executable(manual_tests
-    manualTests.cpp
+add_executable(test_A
+    testA.cpp
     ${TEST_HEADERS}
 )
 target_link_libraries(
-    manual_tests
+    test_A
     GTest::gtest
     GTest::gtest_main)
 add_test(
-    NAME manual_tests
-    COMMAND manual_tests
+    NAME test_A
+    COMMAND test_A
+)
+
+add_executable(test_B
+    testB.cpp
+    ${TEST_HEADERS}
+)
+target_link_libraries(
+    test_B
+    GTest::gtest
+    GTest::gtest_main)
+add_test(
+    NAME test_B
+    COMMAND test_B
 )

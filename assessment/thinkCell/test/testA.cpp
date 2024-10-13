@@ -1,86 +1,129 @@
-#include <string>
-#include <vector>
+#include <gtest/gtest.h>
 
-#include <limits>
+#include <iostream>
 #include <random>
+#include <string>
 
-#include <assert.h>
-#include <cassert>
+#include "../../../include/distributions.hpp"
+#include "../include/interval_map.hpp"
 
-#include <math.h>
+using TypeK = int;
+using TypeV = char;
 
-#include "include/interval_map.hpp"
+using Tuple = std::pair<std::pair<TypeK, TypeK>, TypeV>;
+
+using namespace think_cell;
+using K = KeyType<TypeK>;
+using V = ValueType<TypeV>;
 
 
-#define STYLE 2
+const V DefaultCharacter = V('~');
+
+constexpr int MaxAttempts = 10000;
+constexpr int MaxNumeral = 32;
+constexpr int MaxKey = MaxAttempts;
 
 
-template <typename K, typename V>
-void testIntChar(const V defaultValue)
+class TestEnvironment : public ::testing::Environment
 {
-  auto message = [](K m, K x, K y, K z, V g, V h)
+ public:
+  static interval_map<TypeK, TypeV>* m_intervalMap;
+
+  TestEnvironment(){};
+  ~TestEnvironment() { delete m_intervalMap; };
+};
+interval_map<TypeK, TypeV>* TestEnvironment::m_intervalMap =
+  new interval_map<TypeK, TypeV>(DefaultCharacter);
+
+
+class TestPrimer : public ::testing::Test
+{
+ private:
+  helper::RandomDistribution<int> m_keyDist;
+  helper::RandomDistribution<int> m_valueDist;
+  std::mt19937 m_generator;
+
+ protected:
+  TestPrimer()
+      : m_keyDist(helper::RandomDistribution<int>(-MaxAttempts, MaxAttempts)),
+        m_valueDist(helper::RandomDistribution<int>(-MaxNumeral, MaxNumeral)),
+        m_generator(std::mt19937((std::random_device())())){};
+  ~TestPrimer() = default;
+
+  void message(const int atp, const Tuple tuple, const V mapValue) const
   {
-    std::cout << m << " [" << x << ", " << y << "] " << z << " " << g << " ("
-              << h << ")"
+    const auto diff = fabs(tuple.first.second - tuple.first.first);
+    std::cout << atp << " [" << tuple.first.first << ", " << tuple.first.second
+              << "] " << diff << " " << tuple.second << " (" << mapValue << ")"
               << "\n";
+  }
+
+  int nextKey() { return m_keyDist(m_generator); }
+
+  int nextValue() { return m_valueDist(m_generator); }
+
+  Tuple tuple()
+  {
+    Tuple t;
+    t.first.first = nextKey();
+    t.first.second = nextKey();
+    t.second = 'a' + nextValue() % 26;
+    return t;
   };
 
-  interval_map<K, V> mIntChar(defaultValue);
+  void print() { TestEnvironment::m_intervalMap->print(); }
 
-  std::random_device randDevice;
-  std::mt19937 generator(randDevice());
+  bool validate() { return TestEnvironment::m_intervalMap->validate(); }
 
-  int max = 25;
-  std::uniform_int_distribution<> distribution(-max, max);
-
-  int i, j, k;
-  char c, b;
-  for (int n = 0; n < 1000000; ++n) {
-    i = distribution(generator);
-    j = distribution(generator);
-    k = (i + j) / 2;
-    c = 'a' + k % 26;
-
-    b = mIntChar[j];
-
-    message(n, i, j, fabs(j - i), c, mIntChar[i]);
-
-    IntervalMapTest2(mIntChar, i, j, c);
-    mIntChar.assign(i, j, c);
-
-    if (i < j) {
-      for (int l = i; l < j; l++) {
-        if (mIntChar[l] != c) {
-          std::cout << "first test\n";
-          message(n, i, j, l, c, mIntChar[l]);
-          mIntChar.printMap();
-          return;
-        }
-      }
-
-      if ((b != c) && (mIntChar[j] == c)) {
-        std::cout << "second test " << b << ' ' << c << "\n";
-        message(n, i, j, j, c, mIntChar[j]);
-        mIntChar.printMap();
-        return;
-      }
-    }
-
-    if ((mIntChar[-max - 1] != '~') || (mIntChar[max + 1] != '~')) {
-      if ((mIntChar[-max - 1] != '~')) {
-        std::cout << "third test " << -max << "\n";
-        message(n, i, j, -max - 1, '~', mIntChar[-max - 1]);
-      }
-      else {
-        std::cout << "third test " << max + 1 << "\n";
-        message(n, i, j, max + 1, '~', mIntChar[max + 1]);
-      }
-      mIntChar.printMap();
-      return;
-    }
+  void assign(const Tuple tuple)
+  {
+    TestEnvironment::m_intervalMap->assign(
+      K(tuple.first.first), K(tuple.first.second), V(tuple.second));
   }
-  mIntChar.printMap();
+
+  void assignTest(const Tuple tuple)
+  {
+    TestEnvironment::m_intervalMap->assignTest(
+      K(tuple.first.first), K(tuple.first.second), V(tuple.second));
+  }
+
+  V get(const K it) const
+  {
+    return TestEnvironment::m_intervalMap->operator[](it);
+  }
+};
+
+TEST_F(TestPrimer, Test)
+{
+  for (int n = 0; n < MaxAttempts; ++n) {
+    Tuple entry = tuple();
+    const V mapValue = get(entry.first.second);
+    if (false)
+      message(n, entry, mapValue);
+    assignTest(entry);
+    EXPECT_TRUE(validate()) << *TestEnvironment::m_intervalMap;
+
+    if (entry.first.first < entry.first.second) {
+      for (int l = entry.first.first; l < entry.first.second; l++)
+        EXPECT_EQ(get(l), entry.second) << *TestEnvironment::m_intervalMap;
+
+      if (mapValue.m_value != entry.second) {
+        EXPECT_NE(get(entry.first.second), entry.second)
+          << *TestEnvironment::m_intervalMap;
+      }
+    }
+
+    EXPECT_EQ(get(-MaxKey - 1).m_value, '~') << *TestEnvironment::m_intervalMap;
+    EXPECT_EQ(get(MaxKey + 1).m_value, '~') << *TestEnvironment::m_intervalMap;
+  }
 }
 
+int main(int argc, char** argv)
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  ::testing::AddGlobalTestEnvironment(new TestEnvironment);
 
-int main(int argc, char* argv[]) {}
+  int result = RUN_ALL_TESTS();
+  std::cout << ">> final map: " << *TestEnvironment::m_intervalMap;
+  return result;
+}

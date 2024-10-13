@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 project(
-    ExpressionParser,
+    IntervalMap,
     VERSION 1.0.0
     DESCRIPTION "Custom interval map for ThinkCell."
     LANGUAGES CXX
@@ -20,10 +20,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
-    SET(CMAKE_CXX_FLAGS
-        "-g -O3 -std=c++23 -Wpedantic -pedantic-errors -Wall")
+SET(CMAKE_CXX_FLAGS
+    "-g -O3 -std=c++23 -Wpedantic -pedantic-errors -Wall")
 
 set(SOURCE
+    source/interval_map.cpp
     include/interval_map.hpp
 )
 add_executable(interval_map ${SOURCE})

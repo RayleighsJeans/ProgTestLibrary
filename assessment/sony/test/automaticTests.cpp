@@ -1,5 +1,5 @@
-#include <random>
 #include <gtest/gtest.h>
+#include <random>
 
 #include "../include/evaluate.hpp"
 #include "../include/shuntingYard.hpp"
@@ -50,7 +50,7 @@ class AutomaticTestPrimer : public testing::Test
         m_charDist(helper::RandomDistribution<int>(1, 4)),
         m_numberDist(
           helper::RandomDistribution<double>(-MaxNumeral, MaxNumeral)),
-        m_generator(std::mt19937((std::random_device())())) {};
+        m_generator(std::mt19937((std::random_device())())){};
   ~AutomaticTestPrimer() = default;
 
   /// @brief Get a key/hash for the next random character.

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <bitset>
 
 
@@ -5,8 +6,8 @@ std::string ltrim(const std::string& str)
 {
   std::string s(str);
 
-  s.erase(s.begin(),
-          find_if(s.begin(), s.end(), not1(std::ptr_fun<int, int>(isspace))));
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+                                  not1(std::ptr_fun<int, int>(isspace))));
 
   return s;
 }
