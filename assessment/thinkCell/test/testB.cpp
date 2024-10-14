@@ -66,7 +66,7 @@ class TestPrimer : public ::testing::Test
                 expectations[i].m_label)
         << m_intervalMap;
   }
-};
+}; // class TestPrimer
 
 
 TEST_F(TestPrimer, PredefinedTest)

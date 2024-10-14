@@ -33,3 +33,16 @@ add_test(
     NAME test_B
     COMMAND test_B
 )
+
+add_executable(test_C
+    testC.cpp
+    ${TEST_HEADERS}
+)
+target_link_libraries(
+    test_C
+    GTest::gtest
+    GTest::gtest_main)
+add_test(
+    NAME test_C
+    COMMAND test_C
+)

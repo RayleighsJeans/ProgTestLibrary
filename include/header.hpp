@@ -193,7 +193,7 @@ class RandomGenerator
         m_maximumValue(max),
         m_randomDistribution(RandomDistribution<T>(min, max)),
         m_binaryDistribution(RandomDistribution<int>(0, 1)),
-        m_generator(std::mt19937((std::random_device())())) {};
+        m_generator(std::mt19937((std::random_device())())){};
 
   /// @brief dtor.
   ~RandomGenerator() = default;
@@ -471,6 +471,16 @@ class Timer
                         .count();
     std::cout << ">> time past: " << duration << "ms;\n";
   } // tock
+
+  /// @brief Get the last timed section.
+  /// @return Last elapsed lap time (high precision clock milliseconds).
+  double elapsed() const
+  {
+    return (std::chrono::duration<double, std::milli>(
+              std::chrono::duration_cast<std::chrono::milliseconds>(
+                m_tocks.back() - m_tick))
+              .count());
+  } // elapsed
 
  private:
   /// @brief The starting point (in time).

@@ -1,119 +1,159 @@
+#include <gtest/gtest.h>
 
-const char* perf_tests[] = {"AddRight", "Pyramid", "Skew", "Remove"};
-// for (int type = 0; type < LENGTH(perf_tests); type++)
+#include "../../../include/header.hpp"
+#include "../include/interval_map.hpp"
+
+
+using TypeK = int;
+using TypeV = int;
+
+using namespace think_cell;
+
+using K = KeyType<TypeK>;
+using V = ValueType<TypeV>;
+
+
+// #define DEBUG
+
+
+class TestPrimer : public ::testing::Test
 {
-  struct Counter
+ public:
+  interval_map<K, V> m_intervalMap;
+
+ protected:
+  TestPrimer() : m_intervalMap(interval_map<K, V>(V(0))){};
+  ~TestPrimer() = default;
+
+  void message(const int atp, const TypeK L, const TypeK R, const TypeV M,
+               const TypeV mapValue) const
   {
-    double Freq = 0.0;
-    int Start = 0;
-    Counter()
-    {
-#ifdef _WINDOWS_
-      LARGE_INTEGER li;
-      if (!QueryPerformanceFrequency(&li))
-        std::cout << "Cannot obtain a performance counter!\n";
-      Freq = double(li.QuadPart);
-      QueryPerformanceCounter(&li);
-      Start = li.QuadPart;
-#endif
-    }
-    operator double() const
-    {
-#ifdef _WINDOWS_
-      LARGE_INTEGER li;
-      QueryPerformanceCounter(&li);
-      return double(li.QuadPart - Start) / Freq;
-#else
-      return 0;
-#endif
-    }
-  };
-
-  START_TEST(PerformanceTest);
-  int v = 0;
-  int factor = 1;
-  int factor = 100;
-
-#ifndef _DEBUG
-  factor *= 60;
-#endif
-
-  if (type == 0) {
-    interval_map<KT, VT> m(0);
-    const int width = 10;
-    const int max_test = 1000 * factor;
-    const int expsz = max_test + 1;
-    Counter counter;
-    for (int i = 0; i < max_test; i++)
-      m.assign(i * width, (i + 1) * width, --v);
-    std::cout << "AddRight time: " << counter << " m.size: " << m.m_map.size()
-              << " expected sz: " << expsz
-              << (m.m_map.size() == expsz ? " okay" : " mismatch") << "\n";
-  }
-  else if (type == 1) {
-    // interval_map<int, unsigned int> m(0);
-    interval_map<int, int> m(0);
-    std::cout << "default: 0 (" << m[0] << ")"
+    const auto diff = fabs(R - L);
+    std::cout << atp << " [" << L << ", " << R << "] " << diff << " " << M
+              << " (" << mapValue << ")"
               << "\n";
-    m.printMap();
-    // const int max_test = factor * 5000;
-    const int max_test = factor * 10;
-    const int expsz = max_test + 1;
-    Counter counter;
-    int foo = v;
-    for (int i = 0; i < max_test; i++) {
-      foo = v - 1;
-      message(i, i, max_test - i, max_test - i - i, foo, m[i]);
-      m.assign(i, max_test - i, foo);
-      // m.printMap();
-      --v;
-    }
-    std::cout << "Pyramid  time: " << counter << " m.size: " << m.m_map.size()
-              << " expected sz: " << expsz
-              << (m.m_map.size() == expsz ? " okay" : " mismatch") << "\n";
-    m.printMap();
+  }
 
-    // -1  0  1  2  3  4  5  6  7  8  9  10
-    //  0  0  0  0  0  0  0  0  0  0  0  0
-    //  0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1  0
-    //  0 -1 -2 -2 -2 -2 -2 -2 -2 -2 -1  0
-    //  0 -1 -2 -3 -3 -3 -3 -3 -3 -2 -1  0
-    //  0 -1 -2 -3 -4 -4 -4 -4 -3 -2 -1  0
-    //  0 -1 -2 -3 -4 -5 -5 -4 -3 -2 -1  0
-    //  0 -1 -2 -3 -4 -4 -4 -4 -3 -2 -1  0
+  void print() { m_intervalMap.print(); }
+
+  bool validate() { return m_intervalMap.validate(); }
+
+  void assign(const TypeK L, const TypeK R, const TypeV M)
+  {
+    m_intervalMap.assign(K(L), K(R), V(M));
   }
-  else if (type == 2) {
-    interval_map<KT, VT> m(0);
-    int sqrtf = (int)sqrt(factor);
-    const int max_test = 100 * sqrtf;
-    const int max_drift = 100 * sqrtf;
-    const int expsz = max_test + max_drift - 1;
-    Counter counter;
-    for (int k = 0; k < max_drift; k++)
-      for (int i = 0; i < max_test; i++)
-        m.assign(k + i, k + max_test - i, --v);
-    std::cout << "Skew     time: " << counter << " m.size: " << m.m_map.size()
-              << " expected sz: " << expsz
-              << (m.m_map.size() == expsz ? " okay" : " mismatch") << "\n";
+
+  void assignTest(const TypeK L, const TypeK R, const TypeV M)
+  {
+    m_intervalMap.assignTest(K(L), K(R), V(M));
   }
-  else if (type == 3) {
-    interval_map<KT, VT> m(0);
-    int sqrtf = (int)sqrt(factor);
-    const int width = 1;
-    const int stride = 10;
-    const int max_drift = 100 * sqrtf;
-    const int max_test = 100 * sqrtf;
-    const int expsz = 3;
-    Counter counter;
-    for (int k = 0; k < max_drift; k++) {
-      for (int i = 0; i < max_test; i++)
-        m.assign(k * i * width, k * (i + 1) * width, --v);
-      int from = k * (max_test - 1) * width;
-      int to = k * (max_test + 1) * width;
-      for (int i = max_test; i > 0; i -= stride)
-        m.assign(i, to, --v);
+
+  V get(const K it) const { return m_intervalMap[it].m_value; }
+}; // class TestPrimer
+
+
+#ifndef DEBUG
+constexpr int ScaleFactor = 6000;
+#else
+constexpr int ScaleFactor = 1;
+#endif
+
+int Counter = 0;
+
+TEST_F(TestPrimer, AddRight)
+{
+  const int width = 10;
+  const int MaxTest = 1000 * ScaleFactor;
+  const int ExpectedSize = MaxTest + 1;
+
+  helper::Timer t;
+  int v = 0;
+
+  t.tick();
+  for (int i = 0; i < MaxTest; i++)
+    assign(i * width, (i + 1) * width, v--);
+  t.tock();
+
+  EXPECT_LE(t.elapsed(), 4000);
+  EXPECT_EQ(m_intervalMap.map().size(), ExpectedSize) << m_intervalMap;
+
+  Counter = v;
+}
+
+TEST_F(TestPrimer, Pyramid)
+{
+  const int MaxTest = ScaleFactor * 10;
+  const int ExpectedSize = MaxTest;
+
+  helper::Timer t;
+  int v = Counter;
+
+  t.tick();
+  for (int i = 0; i < MaxTest; i++) {
+    v = Counter - 1;
+    assign(i, MaxTest - i, v);
+    Counter--;
+  }
+  t.tock();
+
+  EXPECT_LE(t.elapsed(), 20);
+  EXPECT_EQ(m_intervalMap.map().size(), ExpectedSize) << m_intervalMap;
+
+  Counter = v;
+}
+
+TEST_F(TestPrimer, Skew)
+{
+  const int Scale = (int)sqrt(ScaleFactor);
+  const int MaxTests = 100 * Scale;
+  const int MaxDrift = 100 * Scale;
+  const int ExpectedSize = MaxTests + MaxDrift - 1;
+
+  helper::Timer t;
+  int v = Counter;
+
+  t.tick();
+  for (int k = 0; k < MaxDrift; k++)
+    for (int i = 0; i < MaxTests; i++)
+      assign(k + i, k + MaxTests - i, v--);
+  t.tock();
+
+  EXPECT_LE(t.elapsed(), 8000);
+  EXPECT_EQ(m_intervalMap.map().size(), ExpectedSize) << m_intervalMap;
+
+  Counter = v;
+}
+
+TEST_F(TestPrimer, Remove)
+{
+  const int Scale = (int)sqrt(ScaleFactor);
+  const int width = 1;
+  const int stride = 10;
+  const int MaxDrift = 100 * Scale;
+  const int MaxTests = 100 * Scale;
+  const int ExpectedSize = 3;
+
+  helper::Timer t;
+  int v = Counter;
+
+  t.tick();
+  for (int k = 0; k < MaxDrift; k++) {
+    for (int i = 0; i < MaxTests; i++) {
+      assign(k * i * width, k * (i + 1) * width, v--);
     }
-    std::cout << "Remove   time: " << counter << " m.size: " << m.m_map.size()
-              << " expected sz: " << expsz
-              << (m.m_map.size() == expsz ? " okay" : " mismatch") << "\n";
+    int to = k * (MaxTests + 1) * width;
+    for (int i = MaxTests; i > 0; i -= stride) {
+      assign(i, to, v--);
+    }
   }
+  t.tock();
+
+  EXPECT_LE(t.elapsed(), 9000);
+  EXPECT_EQ(m_intervalMap.map().size(), ExpectedSize) << m_intervalMap;
+}
+
+int main(int argc, char** argv)
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

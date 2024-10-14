@@ -31,7 +31,7 @@ class TestEnvironment : public ::testing::Environment
 
   TestEnvironment(){};
   ~TestEnvironment() { delete m_intervalMap; };
-};
+}; // class TestEnvironment
 interval_map<TypeK, TypeV>* TestEnvironment::m_intervalMap =
   new interval_map<TypeK, TypeV>(DefaultCharacter);
 
@@ -91,7 +91,7 @@ class TestPrimer : public ::testing::Test
   {
     return TestEnvironment::m_intervalMap->operator[](it);
   }
-};
+}; // class TestPrimer
 
 TEST_F(TestPrimer, Test)
 {
