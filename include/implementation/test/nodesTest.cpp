@@ -1,70 +1,123 @@
-#include "../../header.hpp"
+#include <gtest/gtest.h>
+
 #include "../lists/nodesImpl.hpp"
 
 
-using namespace helper;
 using namespace linked_lists;
 
 
-int main()
+class TestEnvironment : public ::testing::Environment
 {
-  {
-    EmptyNode<std::string>* node = new EmptyNode<std::string>("foo");
-    std::cout << "node:" << *node << std::endl;
-    std::cout << "label:" << (*node)() << std::endl;
+ public:
+  TestEnvironment(){};
+  ~TestEnvironment() override{};
+  void SetUp() override {}
+  void TearDown() override {}
+};
 
-    (*node)("bar");
+class TestPrimer : public ::testing::Test
+{
+ protected:
+  TestPrimer(){};
+  ~TestPrimer() override{};
+  void SetUp() override {}
+  void TearDown() override {}
+};
 
-    std::cout << "node:" << *node << std::endl;
-    std::cout << "label:" << (*node)() << std::endl;
 
-    node->label("acid");
+TEST_F(TestPrimer, EmptyNodeTest)
+{
+  EmptyNode<std::string>* node = new EmptyNode<std::string>("foo");
+  EXPECT_EQ((*node)(), "foo");
 
-    std::cout << "node:" << *node << std::endl;
-    std::cout << "label:" << (*node)() << std::endl;
-    std::cout << "label:" << node->label() << std::endl;
+  EmptyNode<std::string> newNode(*node);
+  EXPECT_EQ(newNode(), "foo");
 
-    delete node;
-  }
+  EmptyNode<std::string> newerNode;
+  EXPECT_EQ(newerNode(), "");
 
-  {
-    Node<int>* foo = new Node<int>(0, new Node<int>(3));
-    std::cout << "this: " << *foo << std::endl;
-    std::cout << "label: " << (*foo)() << std::endl;
-    std::cout << "next: " << (*foo->next())() << std::endl;
+  newNode("bar");
+  EXPECT_EQ(newNode(), "bar");
 
-    (*foo)(3);
-    foo->next(new Node<int>(5));
+  node->label("acid");
+  EXPECT_EQ(node->label(), "acid");
 
-    std::cout << "this: " << *foo << std::endl;
-    std::cout << "label: " << (*foo)() << std::endl;
-    std::cout << "next: " << (*foo->next())() << std::endl;
+  EmptyNode<std::string> newestNode(*node);
+  EXPECT_EQ(newestNode.label(), "acid");
 
-    delete foo;
-  }
+  std::cout << "newestNode: " << newestNode << std::endl;
 
-  {
-    EdgeNode<std::string, int>* foo = new EdgeNode<std::string, int>(
-      "foo", new EdgeNode<std::string, int>("bar"), 5);
+  delete node;
+}
 
-    std::cout << "this: " << *foo << std::endl;
-    std::cout << "label: " << (*foo)() << std::endl;
-    std::cout << "next: " << (*foo->next())() << std::endl;
-    std::cout << "edge: " << foo->edge() << std::endl;
+TEST_F(TestPrimer, NodeTest)
+{
+  Node<int> nodeB(11);
+  Node<int>* nodeA = new Node<int>(10, nodeB);
 
-    (*foo)("foobar");
-    foo->edge(10);
-    std::cout << "this: " << *foo << std::endl;
-    foo->next(new EdgeNode<std::string, int>("acid"), 10);
-    std::cout << "next: " << (*foo->next())() << std::endl;
+  EXPECT_EQ((*nodeA)(), 10);
+  EXPECT_EQ(nodeA->next()->label(), 11);
+  EXPECT_EQ(nodeA->next()->next(), nullptr);
 
-    std::cout << "edge: " << foo->edge() << std::endl;
-    foo->edge(15);
-    std::cout << "edge: " << foo->edge() << std::endl;
+  Node<int> nodeC;
+  EXPECT_EQ(nodeC(), int());
+  nodeC.label(12);
 
-    std::cout << "this: " << *foo << std::endl;
-    delete foo;
-  }
+  nodeA->next(nodeC);
+  EXPECT_EQ(nodeA->next()->label(), 12);
 
-  return 0;
+  Node<int>* nodeE = new Node<int>(13);
+  nodeA->next()->next(nodeE);
+  EXPECT_EQ(nodeA->next()->next()->label(), 13);
+
+  nodeE->next(new Node<int>(14));
+  EXPECT_EQ(nodeA->next()->next()->next()->label(), 14);
+
+  std::cout << "nodeA: " << *nodeA << std::endl;
+
+  delete nodeA;
+}
+
+TEST_F(TestPrimer, EdgeNodeTest)
+{
+  EdgeNode<std::string, int>* node = new EdgeNode<std::string, int>(
+    "foo", new EdgeNode<std::string, int>("bar"), 5);
+
+  EXPECT_EQ((*node)(), "foo");
+  EXPECT_EQ(node->next()->label(), "bar");
+  EXPECT_EQ(node->edge(), 5);
+
+  (*node)("foobar");
+  node->edge(10);
+  EXPECT_EQ(node->label(), "foobar");
+  EXPECT_EQ(node->next()->label(), "bar");
+  EXPECT_EQ(node->edge(), 10);
+
+  EdgeNode<std::string, int> newestNode("override");
+  EdgeNode<std::string, int> newerNode("crash", newestNode, 20);
+
+  node->next(newerNode, 15);
+  EXPECT_EQ(node->next()->label(), "crash");
+  EXPECT_EQ(node->edge(), 15);
+  EXPECT_EQ(node->next()->next()->label(), "override");
+  EXPECT_EQ(node->next()->edge(), 20);
+
+  node->edge(25);
+  EXPECT_EQ(node->edge(), 25);
+
+  EdgeNode<std::string, int> finalNode(*node);
+  EXPECT_EQ(finalNode.label(), "foobar");
+  EXPECT_EQ(finalNode.next(), node->next());
+  EXPECT_EQ(finalNode.edge(), 25);
+
+  delete node;
+}
+
+int main(int argc, char** argv)
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  ::testing::AddGlobalTestEnvironment(new TestEnvironment);
+
+  int result = RUN_ALL_TESTS();
+  return result;
 }

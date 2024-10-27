@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "../../header.hpp"
 #include "../lists/nodesImpl.hpp"
 #include "adjacencyImpl.hpp"
 
@@ -91,14 +90,11 @@ class EdgeVertex : public linked_lists::EdgeNode<KeyType, EdgeType>
   EdgeVertex(const K& key, Node* next, const E& edge)
       : Node::EdgeNode(key, next, edge){};
 
-  EdgeVertex(const K& key, EdgeNode<L, E>* next)
-      : Node::EdgeNode(key, next, E()){};
+  EdgeVertex(const K& key, Node* next) : Node::EdgeNode(key, next, E()){};
 
   EdgeVertex(const K& key) : Node::EdgeNode(key, nullptr, E()){};
 
-  EdgeVertex(Node<L> node) : Node::EdgeNode(node()){};
-
-  EdgeVertex(Node<L>* node) : Node::EdgeNode((*node)()){};
+  EdgeVertex(Node* node) : Node::EdgeNode(node){};
 
   EdgeVertex() : Node::EdgeNode(){};
 

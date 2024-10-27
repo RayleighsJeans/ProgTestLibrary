@@ -1,43 +1,61 @@
-#include "../../header.hpp"
+#include <gtest/gtest.h>
+
 #include "../graphs/adjacencyImpl.hpp"
 #include "../graphs/vertexImpl.hpp"
 
 
-using namespace helper;
 using namespace graphs;
 
 
-int main()
+class TestEnvironment : public ::testing::Environment
 {
-  {
-    AdjacencyList<BasicVertex<std::string>, std::string>* list =
-      new AdjacencyList<BasicVertex<std::string>, std::string>(
-        new BasicVertex<std::string>("foo"));
+ public:
+  TestEnvironment(){};
+  ~TestEnvironment() override{};
+  void SetUp() override {}
+  void TearDown() override {}
+};
 
-    list->put(new BasicVertex<std::string>("bar"));
-    std::cout << "list: " << *list << std::endl;
-    list->put("acid");
-    std::cout << "list: " << *list << std::endl;
+class TestPrimer : public ::testing::Test
+{
+ protected:
+  TestPrimer(){};
+  ~TestPrimer() override{};
+  void SetUp() override {}
+  void TearDown() override {}
+};
 
-    delete list;
-  }
 
-  {
-    AdjacencyEdgeList<EdgeVertex<std::string, int>, std::string, int>* list =
-      new AdjacencyEdgeList<EdgeVertex<std::string, int>, std::string, int>(
-        new EdgeVertex<std::string, int>());
+TEST_F(TestPrimer, BasicVertexTest)
+{
+  AdjacencyList<BasicVertex<std::string>, std::string>* list =
+    new AdjacencyList<BasicVertex<std::string>, std::string>(
+      new BasicVertex<std::string>("foo"));
 
-    // AdjacencyEdgeList<BasicVertex<std::string>, std::string, int>* list =
-    //   new AdjacencyEdgeList<BasicVertex<std::string>, std::string, int>(
-    //     new BasicVertex<std::string>("foo"));
+  list->put(new BasicVertex<std::string>("bar"));
+  list->put("acid");
 
-    // list->put(5, new BasicVertex<std::string>("bar"));
-    // std::cout << "list: " << *list << std::endl;
-    // list->put(10, "acid");
-    // std::cout << "list: " << *list << std::endl;
+  delete list;
+}
 
-    delete list;
-  }
+TEST_F(TestPrimer, EdgeVertexTest)
+{
+  AdjacencyEdgeList<EdgeVertex<std::string, int>, std::string, int>* list =
+    new AdjacencyEdgeList<EdgeVertex<std::string, int>, std::string, int>(
+      new EdgeVertex<std::string, int>());
 
-  return 0;
+  // list->put(5, new EdgeVertex<std::string, int>("bar"));
+  // list->put(10, "acid");
+
+  delete list;
+}
+
+
+int main(int argc, char** argv)
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  ::testing::AddGlobalTestEnvironment(new TestEnvironment);
+
+  int result = RUN_ALL_TESTS();
+  return result;
 }
