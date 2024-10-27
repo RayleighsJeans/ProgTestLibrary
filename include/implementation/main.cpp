@@ -31,9 +31,10 @@ int main()
 
     Node<int>* nodeA = new Node<int>(0);
     LinkedList<int>* list = new LinkedList<int>(nodeA);
+
     Node<int>* nodeC = new Node<int>(2);
-    Node<int>* nodeB = new Node<int>(1, nodeC);
-    list->push_front(nodeB);
+    // Node<int>* nodeB = new Node<int>(1, nodeC);
+    list->push_front(nodeC);
 
     // std::cout << "list: " << *list << std::endl;
     // std::cout << "head:" << *list->front() << std::endl;

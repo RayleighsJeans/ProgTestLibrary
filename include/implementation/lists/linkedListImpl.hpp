@@ -19,6 +19,15 @@ class LinkedList
   std::shared_ptr<Node<L>> m_head;
   std::shared_ptr<Node<L>> m_tail;
 
+ protected:
+  void head(std::shared_ptr<Node<L>> node)
+  {
+    if (node && node != m_head)
+      if (m_head && (m_head.use_count() == 1))
+        m_head.reset();
+    m_head.swap(node);
+  }
+
  public:
   LinkedList(Node<L>* node) : m_head(node), m_tail(m_head)
   {
@@ -35,11 +44,11 @@ class LinkedList
     }
   };
 
-  LinkedList(const L label) : LinkedList(new Node<L>(label)){};
+  LinkedList(const L label) : LinkedList(new Node<L>(label)) {};
 
-  LinkedList() : LinkedList(nullptr){};
+  LinkedList() : LinkedList(nullptr) {};
 
-  ~LinkedList(){
+  ~LinkedList() {
     // Node<L>* tmp = m_head;
     // while (tmp && tmp->next()) {
     //   Node<L>* next = tmp->next().get();
@@ -56,14 +65,14 @@ class LinkedList
     // m_head.reset();
   };
 
-  // void push_front(Node<L>* node)
-  // {
-  //   node->next(m_head.get());
-  //   head(std::shared_ptr<Node<L>>(node));
-  //   m_size++;
-  // }
+  void push_front(Node<L>* node)
+  {
+    node->next(m_head);
+    head(std::shared_ptr<Node<L>>(node));
+    m_size++;
+  }
 
-  // void push_front(const L value) { push_front(new Node<L>(value)); }
+  void push_front(const L value) { push_front(new Node<L>(value)); }
 
   // void push_back(Node<L>* node)
   // {
@@ -249,7 +258,7 @@ class LinkedList
   //   return node;
   // }
 
-  // size_t size() const { return m_size; }
+  size_t size() const { return m_size; }
 
   friend std::ostream& operator<<(std::ostream& stream,
                                   const LinkedList<L>& list)

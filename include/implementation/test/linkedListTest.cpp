@@ -9,8 +9,8 @@ using namespace linked_lists;
 class TestEnvironment : public ::testing::Environment
 {
  public:
-  TestEnvironment(){};
-  ~TestEnvironment() override{};
+  TestEnvironment() {};
+  ~TestEnvironment() override {};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -18,8 +18,8 @@ class TestEnvironment : public ::testing::Environment
 class TestPrimer : public ::testing::Test
 {
  protected:
-  TestPrimer(){};
-  ~TestPrimer() override{};
+  TestPrimer() {};
+  ~TestPrimer() override {};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -28,14 +28,14 @@ class TestPrimer : public ::testing::Test
 TEST_F(TestPrimer, LinkedListTest)
 {
   LinkedList<int>* list = new LinkedList<int>(new Node<int>(0));
-  Node<int>* nodeB = new Node<int>(2);
-  Node<int>* nodeA = new Node<int>(1, nodeB);
-  list->push_front(nodeA);
+  // Node<int>* nodeB = new Node<int>(2);
+  // Node<int>* nodeA = new Node<int>(1, nodeB);
+  // list->push_front(nodeA);
 
-  std::cout << "list: " << *list << std::endl;
-  std::cout << "head:" << *list->front() << std::endl;
-  std::cout << "tail:" << *list->back() << std::endl;
-  std::cout << "list size: " << list->size() << std::endl;
+  // std::cout << "list: " << *list << std::endl;
+  // std::cout << "head:" << *list->front() << std::endl;
+  // std::cout << "tail:" << *list->back() << std::endl;
+  // std::cout << "list size: " << list->size() << std::endl;
 
   // list->push_front(2);
   // list->push_front(new Node<int>(3));

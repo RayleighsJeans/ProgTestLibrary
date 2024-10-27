@@ -9,8 +9,8 @@ using namespace linked_lists;
 class TestEnvironment : public ::testing::Environment
 {
  public:
-  TestEnvironment(){};
-  ~TestEnvironment() override{};
+  TestEnvironment() {};
+  ~TestEnvironment() override {};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -18,8 +18,8 @@ class TestEnvironment : public ::testing::Environment
 class TestPrimer : public ::testing::Test
 {
  protected:
-  TestPrimer(){};
-  ~TestPrimer() override{};
+  TestPrimer() {};
+  ~TestPrimer() override {};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -73,6 +73,10 @@ TEST_F(TestPrimer, NodeTest)
   nodeE->next(new Node<int>(14));
   EXPECT_EQ(nodeA->next()->next()->next()->label(), 14);
 
+  std::shared_ptr<Node<int>> nodeD = std::make_shared<Node<int>>(15);
+  nodeE->next()->next(nodeD);
+  EXPECT_EQ(nodeA->next()->next()->next()->next()->label(), 15);
+
   std::cout << "nodeA: " << *nodeA << std::endl;
 
   delete nodeA;
@@ -102,6 +106,10 @@ TEST_F(TestPrimer, EdgeNodeTest)
   EXPECT_EQ(node->next()->next()->label(), "override");
   EXPECT_EQ(node->next()->edge(), 20);
 
+  std::shared_ptr<EdgeNode<std::string, int>> nodePtr =
+    std::make_shared<EdgeNode<std::string, int>>("burn");
+  node->next()->next(nodePtr, 30);
+
   node->edge(25);
   EXPECT_EQ(node->edge(), 25);
 
@@ -109,6 +117,8 @@ TEST_F(TestPrimer, EdgeNodeTest)
   EXPECT_EQ(finalNode.label(), "foobar");
   EXPECT_EQ(finalNode.next(), node->next());
   EXPECT_EQ(finalNode.edge(), 25);
+  EXPECT_EQ(finalNode.next()->next()->label(), "burn");
+  EXPECT_EQ(finalNode.next()->edge(), 30);
 
   delete node;
 }
