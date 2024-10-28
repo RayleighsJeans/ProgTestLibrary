@@ -9,8 +9,8 @@ using namespace linked_lists;
 class TestEnvironment : public ::testing::Environment
 {
  public:
-  TestEnvironment() {};
-  ~TestEnvironment() override {};
+  TestEnvironment(){};
+  ~TestEnvironment() override{};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -18,8 +18,8 @@ class TestEnvironment : public ::testing::Environment
 class TestPrimer : public ::testing::Test
 {
  protected:
-  TestPrimer() {};
-  ~TestPrimer() override {};
+  TestPrimer(){};
+  ~TestPrimer() override{};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -52,25 +52,25 @@ TEST_F(TestPrimer, EmptyNodeTest)
 
 TEST_F(TestPrimer, NodeTest)
 {
-  Node<int> nodeB(11);
-  Node<int>* nodeA = new Node<int>(10, nodeB);
+  std::shared_ptr<Node<int>> nodeB = std::make_shared<Node<int>>(11);
+  std::shared_ptr<Node<int>> nodeA = std::make_shared<Node<int>>(10, nodeB);
 
   EXPECT_EQ((*nodeA)(), 10);
   EXPECT_EQ(nodeA->next()->label(), 11);
   EXPECT_EQ(nodeA->next()->next(), nullptr);
 
-  Node<int> nodeC;
-  EXPECT_EQ(nodeC(), int());
-  nodeC.label(12);
+  std::shared_ptr<Node<int>> nodeC = std::make_shared<Node<int>>();
+  EXPECT_EQ((*nodeC)(), int());
+  nodeC->label(12);
 
   nodeA->next(nodeC);
   EXPECT_EQ(nodeA->next()->label(), 12);
 
-  Node<int>* nodeE = new Node<int>(13);
+  std::shared_ptr<Node<int>> nodeE = std::make_shared<Node<int>>(13);
   nodeA->next()->next(nodeE);
   EXPECT_EQ(nodeA->next()->next()->label(), 13);
 
-  nodeE->next(new Node<int>(14));
+  nodeE->next(std::make_shared<Node<int>>(14));
   EXPECT_EQ(nodeA->next()->next()->next()->label(), 14);
 
   std::shared_ptr<Node<int>> nodeD = std::make_shared<Node<int>>(15);
@@ -78,14 +78,12 @@ TEST_F(TestPrimer, NodeTest)
   EXPECT_EQ(nodeA->next()->next()->next()->next()->label(), 15);
 
   std::cout << "nodeA: " << *nodeA << std::endl;
-
-  delete nodeA;
 }
 
 TEST_F(TestPrimer, EdgeNodeTest)
 {
   EdgeNode<std::string, int>* node = new EdgeNode<std::string, int>(
-    "foo", new EdgeNode<std::string, int>("bar"), 5);
+    "foo", std::make_shared<EdgeNode<std::string, int>>("bar"), 5);
 
   EXPECT_EQ((*node)(), "foo");
   EXPECT_EQ(node->next()->label(), "bar");
@@ -97,8 +95,10 @@ TEST_F(TestPrimer, EdgeNodeTest)
   EXPECT_EQ(node->next()->label(), "bar");
   EXPECT_EQ(node->edge(), 10);
 
-  EdgeNode<std::string, int> newestNode("override");
-  EdgeNode<std::string, int> newerNode("crash", newestNode, 20);
+  std::shared_ptr<EdgeNode<std::string, int>> newestNode =
+    std::make_shared<EdgeNode<std::string, int>>("override");
+  std::shared_ptr<EdgeNode<std::string, int>> newerNode =
+    std::make_shared<EdgeNode<std::string, int>>("crash", newestNode, 20);
 
   node->next(newerNode, 15);
   EXPECT_EQ(node->next()->label(), "crash");
@@ -119,8 +119,6 @@ TEST_F(TestPrimer, EdgeNodeTest)
   EXPECT_EQ(finalNode.edge(), 25);
   EXPECT_EQ(finalNode.next()->next()->label(), "burn");
   EXPECT_EQ(finalNode.next()->edge(), 30);
-
-  delete node;
 }
 
 int main(int argc, char** argv)

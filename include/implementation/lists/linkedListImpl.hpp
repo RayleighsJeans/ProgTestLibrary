@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+#include <map>
 #include <memory>
 #include <optional>
 
@@ -15,7 +17,8 @@ class LinkedList
   using L = LabelType;
 
  private:
-  size_t m_size = 0;
+  std::map<std::shared_ptr<Node<L>>, L> m_map;
+
   std::shared_ptr<Node<L>> m_head;
   std::shared_ptr<Node<L>> m_tail;
 
@@ -28,237 +31,239 @@ class LinkedList
     m_head.swap(node);
   }
 
- public:
-  LinkedList(Node<L>* node) : m_head(node), m_tail(m_head)
+  void tail(std::shared_ptr<Node<L>> node)
   {
-    if (node)
-      m_size++;
-
-    if (node->next()) {
-      std::shared_ptr<Node<L>> tmp(node);
-      while (tmp->next()) {
-        tmp = tmp->next();
-        m_size++;
-      }
-      m_tail = tmp;
-    }
-  };
-
-  LinkedList(const L label) : LinkedList(new Node<L>(label)) {};
-
-  LinkedList() : LinkedList(nullptr) {};
-
-  ~LinkedList() {
-    // Node<L>* tmp = m_head;
-    // while (tmp && tmp->next()) {
-    //   Node<L>* next = tmp->next().get();
-
-    //   tmp->next(nullptr);
-    //   delete tmp;
-
-    //   tmp = next;
-    // }
-    // delete tmp;
-
-    // if (m_head != m_tail)
-    //   m_tail.reset();
-    // m_head.reset();
-  };
-
-  void push_front(Node<L>* node)
-  {
-    node->next(m_head);
-    head(std::shared_ptr<Node<L>>(node));
-    m_size++;
+    if (node && node != m_tail)
+      if (m_tail && (m_tail.use_count() == 1))
+        m_tail.reset();
+    m_tail.swap(node);
   }
 
-  void push_front(const L value) { push_front(new Node<L>(value)); }
+  void add(std::shared_ptr<Node<L>> node)
+  {
+    assert("Node in list." && !m_map.count(node));
+    assert("Neighbor is cyclical." && !m_map.count(node->next()));
+    m_map[node] = node->label();
+  }
 
-  // void push_back(Node<L>* node)
-  // {
-  //   node->next(nullptr);
+  void remove(const std::shared_ptr<Node<L>>& node) { m_map.erase(node); }
 
-  //   if (!m_head) {
-  //     push_front(node);
-  //     tail(std::shared_ptr<Node<L>>(node));
-  //     return;
-  //   }
+ public:
+  LinkedList(std::shared_ptr<Node<L>> node)
+  {
+    if (!node)
+      return;
+    add(node);
 
-  //   std::shared_ptr<Node<L>> tmp = m_head;
-  //   while (tmp->next()) {
-  //     tmp = tmp->next();
-  //   }
-  //   tmp->next(node);
-  //   tail(std::shared_ptr<Node<L>>(node));
-  //   m_size++;
-  // }
+    std::shared_ptr<Node<L>> tmp(node);
+    head(tmp);
 
-  // void push_back(const L value) { push_back(new Node<L>(value)); }
+    if (node->next()) {
+      while (tmp->next()) {
+        tmp = tmp->next();
+        add(tmp);
+      }
+    }
+    tail(tmp);
+  };
 
-  // void insert(Node<L>* node, const size_t position)
-  // {
-  //   if (position > m_size) {
-  //     std::cout << "Position out of range." << std::endl;
-  //     delete node;
-  //     return;
-  //   }
-  //   if (!position) {
-  //     push_front(node);
-  //     return;
-  //   }
-  //   if (position == m_size - 1) {
-  //     push_back(node);
-  //     return;
-  //   }
+  LinkedList(const L& label) : LinkedList(std::make_shared<Node<L>>(label)){};
 
-  //   Node<L>* tmp = m_head;
-  //   for (size_t i = 0; i < position - 1 && tmp; ++i) {
-  //     tmp = tmp->next();
-  //   }
+  LinkedList() : LinkedList(nullptr){};
 
-  //   node->next(tmp->next());
-  //   tmp->next(nullptr);
-  //   tmp->next(node);
-  //   m_size++;
-  // }
+  ~LinkedList() = default;
 
-  // void insert(const L value, const size_t position)
-  // {
-  //   insert(new Node<L>(value), position);
-  // }
+  void push_front(std::shared_ptr<Node<L>> node)
+  {
+    if (!node || (node == m_head))
+      return;
 
-  // void pop_front()
-  // {
-  //   if (!m_head) {
-  //     std::cout << "List is empty." << std::endl;
-  //     return;
-  //   }
+    add(node);
+    std::shared_ptr<Node<L>> oldHead(m_head);
+    head(node);
 
-  //   std::shared_ptr<Node<L>> tmp = m_head;
-  //   if (m_tail == m_head) {
-  //     m_head = nullptr;
-  //     m_tail = nullptr;
-  //   }
-  //   else {
-  //     head(m_head->next());
-  //   }
-  //   tmp->next(nullptr);
-  //   if (tmp && tmp.unique())
-  //     tmp.reset();
-  //   m_size--;
-  // }
+    while (node->next()) {
+      node = node->next();
+      add(node);
+    }
+    node->next(oldHead);
+  }
 
-  // void pop_back()
-  // {
-  //   if (!m_head) {
-  //     std::cout << "List is empty." << std::endl;
-  //     return;
-  //   }
+  void push_front(const L value)
+  {
+    push_front(std::make_shared<Node<L>>(value));
+  }
 
-  //   if (m_tail == m_head) {
-  //     m_head->next(nullptr);
-  //     if (m_head && m_head.unique())
-  //       m_head.reset();
+  void push_back(std::shared_ptr<Node<L>> node)
+  {
+    if (!node || (node == m_tail))
+      return;
 
-  //     m_head = nullptr;
-  //     m_tail = nullptr;
-  //   }
-  //   else {
-  //     std::shared_ptr<Node<L>> tmp = m_head;
-  //     while (tmp->next()->next()) {
-  //       tmp = tmp->next();
-  //     }
+    if (!m_head) {
+      push_front(node);
+      tail(m_head);
+      return;
+    }
 
-  //     if (m_tail && m_tail.unique())
-  //       m_tail.reset();
-  //     m_tail = tmp;
-  //     m_tail->next(nullptr);
-  //   }
-  //   m_size--;
-  // }
+    add(node);
+    m_tail->next(node);
 
-  // void erase(const size_t position, const bool debug = true)
-  // {
-  //   if (position >= m_size) {
-  //     if (debug)
-  //       std::cout << "Position out of range." << std::endl;
-  //     return;
-  //   }
-  //   if (!position) {
-  //     pop_front();
-  //     return;
-  //   }
-  //   if (position == m_size - 1) {
-  //     pop_back();
-  //     return;
-  //   }
+    std::shared_ptr<Node<L>> newTail(node);
+    while (newTail->next()) {
+      newTail = newTail->next();
+      add(newTail);
+    }
+    tail(newTail);
+  }
 
-  //   std::shared_ptr<Node<L>> previousNode = m_head;
-  //   for (size_t i = 0; i < position - 1 && previousNode; ++i) {
-  //     previousNode = previousNode->next();
-  //   }
+  void push_back(const L value) { push_back(std::make_shared<Node<L>>(value)); }
 
-  //   std::shared_ptr<Node<L>> nodeToDelete = previousNode->next();
-  //   std::shared_ptr<Node<L>> followerNode = nodeToDelete->next();
+  void insert(std::shared_ptr<Node<L>> node, const size_t position,
+              const bool debug = true)
+  {
+    if (position > m_map.size()) {
+      if (debug)
+        std::cout << "Position out of range." << std::endl;
+      return;
+    }
+    if (!position) {
+      push_front(node);
+      return;
+    }
+    if (position == m_map.size() - 1) {
+      push_back(node);
+      return;
+    }
 
-  //   previousNode->next(nullptr);
-  //   previousNode->next(followerNode);
-  //   nodeToDelete->next(nullptr);
+    add(node);
+    std::shared_ptr<Node<L>> tmp(m_head);
 
-  //   if (nodeToDelete && nodeToDelete.unique())
-  //     nodeToDelete.reset();
+    for (size_t i = 0; i < position - 1 && tmp; ++i)
+      tmp = tmp->next();
 
-  //   m_size--;
-  // }
+    node->next(tmp->next());
+    tmp->next(node);
+  }
 
-  // void erase(Node<L>* node) { erase(find(node), false); }
+  void insert(const L& value, const size_t position, const bool debug = true)
+  {
+    insert(std::make_shared<Node<L>>(value), position, debug);
+  }
 
-  // void erase(const L label) { erase(find(label), false); }
+  void pop_front()
+  {
+    if (!m_head)
+      return;
 
-  // size_t find(Node<L>* node, const bool debug = true) const
-  // {
-  //   size_t position = 0;
-  //   std::shared_ptr<Node<L>> tmp = m_head;
-  //   while (node != tmp && tmp) {
-  //     position++;
-  //     tmp = tmp->next();
-  //   }
+    remove(m_head);
+    std::shared_ptr<Node<L>> tmp(m_head);
 
-  //   if (debug && (position == m_size))
-  //     std::cout << "Node not in list." << std::endl;
-  //   return position;
-  // }
+    if (m_tail == m_head) {
+      m_head.reset();
+      m_tail.reset();
+    }
+    else {
+      head(m_head->next());
+    }
+    tmp->next(nullptr);
+  }
 
-  // size_t find(const L& label, const bool debug = true) const
-  // {
-  //   size_t position = 0;
-  //   std::shared_ptr<Node<L>> node = m_head;
-  //   while (node && label != node->label()) {
-  //     position++;
-  //     node = node->next();
-  //   }
+  void pop_back()
+  {
+    if (!m_head)
+      return;
 
-  //   if (debug && (position == m_size))
-  //     std::cout << "Key not in list." << std::endl;
-  //   return position;
-  // }
+    remove(m_tail);
+    if (m_tail == m_head) {
+      head(nullptr);
+      tail(nullptr);
+    }
+    else {
+      std::shared_ptr<Node<L>> tmp(m_head);
+      while (tmp->next()->next())
+        tmp = tmp->next();
+
+      tail(tmp);
+      m_tail->next(nullptr);
+    }
+  }
+
+  void erase(const size_t position, const bool debug = true)
+  {
+    if (position >= m_map.size()) {
+      if (debug)
+        std::cout << "Position out of range." << std::endl;
+      return;
+    }
+    if (!position) {
+      pop_front();
+      return;
+    }
+    if (position == m_map.size() - 1) {
+      pop_back();
+      return;
+    }
+
+    std::shared_ptr<Node<L>> previousNode(m_head);
+    for (size_t i = 0; i < position - 1 && previousNode; ++i)
+      previousNode = previousNode->next();
+
+    std::shared_ptr<Node<L>> nodeToDelete(previousNode->next());
+    std::shared_ptr<Node<L>> followerNode(nodeToDelete->next());
+
+    previousNode->next(nullptr);
+    previousNode->next(followerNode);
+    nodeToDelete->next(nullptr);
+    remove(nodeToDelete);
+  }
+
+  void erase(std::shared_ptr<Node<L>> node) { erase(find(node), false); }
+
+  void erase(const L& label) { erase(find(label), false); }
+
+  size_t find(std::shared_ptr<Node<L>> node, const bool debug = true) const
+  {
+    size_t position = 0;
+    std::shared_ptr<Node<L>> tmp(m_head);
+    while (tmp && node != tmp) {
+      position++;
+      tmp = tmp->next();
+    }
+
+    if (debug && (position == m_map.size()))
+      std::cout << "Node not in list." << std::endl;
+    return position;
+  }
+
+  size_t find(const L& label, const bool debug = true) const
+  {
+    size_t position = 0;
+    std::shared_ptr<Node<L>> node(m_head);
+    while (node && label != node->label()) {
+      position++;
+      node = node->next();
+    }
+
+    if (debug && (position == m_map.size()))
+      std::cout << "Key not in list." << std::endl;
+    return position;
+  }
 
   const std::shared_ptr<Node<L>>& front() const { return m_head; }
 
   const std::shared_ptr<Node<L>>& back() const { return m_tail; }
 
-  // const std::shared_ptr<Node<L>>& at(const size_t position) const
-  // {
-  //   if (position >= m_size)
-  //     return nullptr;
-  //   std::shared_ptr<Node<L>> node = m_head;
-  //   for (size_t i = 0; i < position && node; ++i) {
-  //     node = node->next();
-  //   }
-  //   return node;
-  // }
+  std::shared_ptr<Node<L>> at(const size_t position) const
+  {
+    if (position >= m_map.size())
+      return nullptr;
+    std::shared_ptr<Node<L>> node(m_head);
+    for (size_t i = 0; i < position && node; ++i)
+      node = node->next();
+    return node;
+  }
 
-  size_t size() const { return m_size; }
+  size_t size() const { return m_map.size(); }
 
   friend std::ostream& operator<<(std::ostream& stream,
                                   const LinkedList<L>& list)

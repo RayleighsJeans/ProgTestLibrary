@@ -9,8 +9,8 @@ using namespace linked_lists;
 class TestEnvironment : public ::testing::Environment
 {
  public:
-  TestEnvironment() {};
-  ~TestEnvironment() override {};
+  TestEnvironment(){};
+  ~TestEnvironment() override{};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -18,8 +18,8 @@ class TestEnvironment : public ::testing::Environment
 class TestPrimer : public ::testing::Test
 {
  protected:
-  TestPrimer() {};
-  ~TestPrimer() override {};
+  TestPrimer(){};
+  ~TestPrimer() override{};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -27,50 +27,62 @@ class TestPrimer : public ::testing::Test
 
 TEST_F(TestPrimer, LinkedListTest)
 {
-  LinkedList<int>* list = new LinkedList<int>(new Node<int>(0));
-  // Node<int>* nodeB = new Node<int>(2);
-  // Node<int>* nodeA = new Node<int>(1, nodeB);
-  // list->push_front(nodeA);
+  std::shared_ptr<Node<int>> nodeC = std::make_shared<Node<int>>(2);
+  std::shared_ptr<Node<int>> nodeB = std::make_shared<Node<int>>(1, nodeC);
+  std::shared_ptr<Node<int>> nodeD = std::make_shared<Node<int>>(3, nodeB);
+  LinkedList<int>* newList = new LinkedList<int>(nodeD);
 
-  // std::cout << "list: " << *list << std::endl;
-  // std::cout << "head:" << *list->front() << std::endl;
-  // std::cout << "tail:" << *list->back() << std::endl;
-  // std::cout << "list size: " << list->size() << std::endl;
+  EXPECT_EQ(newList->size(), 3);
+  EXPECT_EQ(newList->front()->label(), 3);
+  EXPECT_EQ(newList->back()->label(), 2);
 
-  // list->push_front(2);
-  // list->push_front(new Node<int>(3));
-  // list->push_back(4);
-  // list->push_back(new Node<int>(3));
-  // std::cout << "list: " << *list << std::endl;
-  // std::cout << "head:" << *list->front() << std::endl;
-  // std::cout << "tail:" << *list->back() << std::endl;
+  delete newList;
 
-  // list->pop_front();
-  // list->pop_back();
-  // std::cout << "list: " << *list << std::endl;
-  // std::cout << "head:" << *list->front() << std::endl;
-  // std::cout << "tail:" << *list->back() << std::endl;
+  std::shared_ptr<Node<int>> nodeA = std::make_shared<Node<int>>(0);
+  LinkedList<int>* list = new LinkedList<int>(nodeA);
+  list->push_front(nodeB);
 
-  // list->insert(5, 100);
-  // list->insert(5, 2);
-  // list->insert(new Node<int>(6), 4);
-  // list->insert(new Node<int>(7), 200);
-  // list->insert(7, 0);
-  // std::cout << "list: " << *list << std::endl;
-  // std::cout << "list size: " << list->size() << std::endl;
+  EXPECT_EQ(list->size(), 3);
+  EXPECT_EQ(list->front()->label(), 1);
+  EXPECT_EQ(list->front()->next()->label(), 2);
+  EXPECT_EQ(list->back()->label(), 0);
 
-  // std::cout << "find node " << *node << " = " << list->find(node) <<
-  // std::endl; std::cout << "find label 4 "
-  //           << " = " << list->find((int)4) << std::endl;
+  std::shared_ptr<Node<int>> nodeE = std::make_shared<Node<int>>(6);
+  std::shared_ptr<Node<int>> nodeF = std::make_shared<Node<int>>(5, nodeE);
+  list->push_back(std::make_shared<Node<int>>(4));
+  list->push_back(nodeF);
 
-  // list->erase((size_t)100);
-  // list->erase((size_t)3);
-  // list->erase((int)5);
-  // list->erase(node);
+  EXPECT_EQ(list->size(), 6);
+  EXPECT_EQ(list->back()->label(), 6);
 
-  // std::cout << "list at 3: " << *list->at((size_t)3) << std::endl;
-  // std::cout << "list: " << *list << std::endl;
-  // std::cout << "list size: " << list->size() << std::endl;
+  list->pop_front();
+  list->pop_back();
+
+  EXPECT_EQ(list->size(), 4);
+  EXPECT_EQ(list->front()->label(), 2);
+  EXPECT_EQ(list->front()->next()->label(), 0);
+  EXPECT_EQ(list->back()->label(), 5);
+
+  list->insert(5, 100);
+  list->insert(5, 2);
+  list->insert(std::make_shared<Node<int>>(6), 4);
+  list->insert(std::make_shared<Node<int>>(7), 200);
+  list->insert(7, 0);
+
+  EXPECT_EQ(list->size(), 7);
+  EXPECT_EQ(list->front()->label(), 7);
+  EXPECT_EQ(list->front()->next()->next()->next()->label(), 5);
+  EXPECT_EQ(list->find(nodeA), 2);
+  EXPECT_EQ(list->find(4), 4);
+
+  list->erase((size_t)100);
+  list->erase((size_t)3);
+  list->erase((int)5);
+  list->erase(nodeA);
+
+  EXPECT_EQ(list->size(), 4);
+  EXPECT_EQ(list->front()->next()->next()->label(), 4);
+  EXPECT_EQ(list->at((size_t)3)->label(), 6);
 
   delete list;
 }

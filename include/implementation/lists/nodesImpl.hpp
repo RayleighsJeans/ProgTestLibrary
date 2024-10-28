@@ -15,9 +15,9 @@ class EmptyNode
   L m_label;
 
  public:
-  EmptyNode(L label) : m_label(label) {};
+  EmptyNode(L label) : m_label(label){};
 
-  EmptyNode() : EmptyNode(L()) {};
+  EmptyNode() : EmptyNode(L()){};
 
   ~EmptyNode() = default;
 
@@ -46,35 +46,16 @@ class Node : public EmptyNode<LabelType>
   std::shared_ptr<Node<L>> m_next = nullptr;
 
  public:
-  Node(const L& label, const Node<L>& node)
-      : EmptyNode<L>::EmptyNode(label),
-        m_next(std::make_shared<Node<L>>(node)) {};
+  Node(const L& label, std::shared_ptr<Node<L>> node)
+      : EmptyNode<L>::EmptyNode(label), m_next(node){};
 
-  Node(const L& label, Node<L>* node)
-      : EmptyNode<L>::EmptyNode(label),
-        m_next(std::shared_ptr<Node<L>>(node)) {};
+  Node(const L& label) : Node(label, nullptr){};
 
-  Node(const L& label) : Node(label, nullptr) {};
+  Node() : Node(L(), nullptr){};
 
-  Node() : Node(L(), nullptr) {};
+  ~Node() = default;
 
-  ~Node()
-  {
-    std::cout << "del node: ";
-    std::cout << this->label();
-    std::cout << " @";
-    std::cout << this;
-    std::cout << " | nxt ";
-    std::cout << (m_next ? m_next->label() : L());
-    std::cout << " @" << m_next;
-    std::cout << " | cnt " << m_next.use_count();
-    std::cout << std::endl;
-
-    if (m_next && (m_next.use_count() == 1))
-      m_next.reset();
-  };
-
-  const std::shared_ptr<Node<L>>& next() const { return m_next; };
+  std::shared_ptr<Node<L>> next() const { return m_next; };
 
   void next(std::shared_ptr<Node<L>> node)
   {
@@ -84,15 +65,11 @@ class Node : public EmptyNode<LabelType>
     m_next.swap(node);
   }
 
-  void next(Node<L>* node) { next(std::shared_ptr<Node<L>>(node)); }
-
-  void next(const Node<L>& node) { next(std::make_shared<Node<L>>(node)); }
-
   friend std::ostream& operator<<(std::ostream& stream, const Node<L>& node)
   {
     stream << "{" << node() << ", ";
     if (node.next())
-      stream << *(node.next());
+      stream << (*node.next())();
     else
       stream << "NULL";
     stream << "}";
@@ -111,18 +88,15 @@ class EdgeNode : public Node<LabelType>
   E m_edge;
 
  public:
-  EdgeNode(const L& label, EdgeNode<L, E>* next, const E& edge)
-      : Node<L>::Node(label, next), m_edge(edge) {};
+  EdgeNode(const L& label, std::shared_ptr<EdgeNode<L, E>> next, const E& edge)
+      : Node<L>::Node(label, next), m_edge(edge){};
 
-  EdgeNode(const L& label, const EdgeNode<L, E>& next, const E& edge)
-      : Node<L>::Node(label, next), m_edge(edge) {};
+  EdgeNode(const L& label, std::shared_ptr<EdgeNode<L, E>> next)
+      : EdgeNode(label, next, E()){};
 
-  EdgeNode(const L& label, EdgeNode<L, E>* next)
-      : EdgeNode(label, next, E()) {};
+  EdgeNode(const L& label) : EdgeNode(label, nullptr, E()){};
 
-  EdgeNode(const L& label) : EdgeNode(label, nullptr, E()) {};
-
-  EdgeNode() : EdgeNode(L(), nullptr, E()) {};
+  EdgeNode() : EdgeNode(L(), nullptr, E()){};
 
   ~EdgeNode() = default;
 
@@ -134,16 +108,6 @@ class EdgeNode : public Node<LabelType>
   {
     Node<L>::next(node);
     edge(newEdge);
-  }
-
-  void next(EdgeNode<L, E>* node, const E& edge)
-  {
-    next(std::shared_ptr<EdgeNode<L, E>>(node), edge);
-  }
-
-  void next(const EdgeNode<L, E>& node, const E& edge)
-  {
-    next(std::make_shared<EdgeNode<L, E>>(node), edge);
   }
 
   std::shared_ptr<EdgeNode<L, E>> next() const
