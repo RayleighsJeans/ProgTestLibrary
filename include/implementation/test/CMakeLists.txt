@@ -30,18 +30,18 @@ add_test(
     COMMAND nodesTest
 )
 
-# add_executable(linkedListTest
-#     linkedListTest.cpp
-#     ${TEST_HEADERS}
-# )
-# target_link_libraries(
-#     linkedListTest
-#     GTest::gtest
-#     GTest::gtest_main)
-# add_test(
-#     NAME linkedListTest
-#     COMMAND linkedListTest
-# )
+add_executable(linkedListTest
+    linkedListTest.cpp
+    ${TEST_HEADERS}
+)
+target_link_libraries(
+    linkedListTest
+    GTest::gtest
+    GTest::gtest_main)
+add_test(
+    NAME linkedListTest
+    COMMAND linkedListTest
+)
 
 # add_executable(adjacencyTest
 #     adjacencyTest.cpp

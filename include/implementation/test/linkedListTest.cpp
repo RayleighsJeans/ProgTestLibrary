@@ -87,51 +87,77 @@ TEST_F(TestPrimer, LinkedListTest)
   delete list;
 }
 
-// TEST_F(TestPrimer, LinkedEdgeListTest)
-// {
-//   EdgeNode<std::string, int>* node =
-//     new EdgeNode<std::string, int>("A", new EdgeNode<std::string, int>("B"),
-//     1);
-//   LinkedEdgeList<std::string, int>* list =
-//     new LinkedEdgeList<std::string, int>(node);
+TEST_F(TestPrimer, LinkedEdgeListTest)
+{
+  std::shared_ptr<EdgeNode<std::string, int>> nodeB(
+    new EdgeNode<std::string, int>("B"));
+  std::shared_ptr<EdgeNode<std::string, int>> nodeA =
+    std::make_shared<EdgeNode<std::string, int>>("A", nodeB, 1);
+  LinkedEdgeList<std::string, int>* list =
+    new LinkedEdgeList<std::string, int>(nodeA);
 
-//   std::cout << "list: " << *list << std::endl;
-//   std::cout << "size: " << list->size() << std::endl;
-//   std::cout << "head:" << *list->front() << std::endl;
-//   std::cout << "tail:" << *list->back() << std::endl;
+  EXPECT_EQ(list->size(), 2);
+  EXPECT_EQ(list->front()->label(), "A");
+  EXPECT_EQ(list->front()->edge(), 1);
+  EXPECT_EQ(list->front()->next()->label(), "B");
+  EXPECT_EQ(list->back()->label(), "B");
+  EXPECT_EQ(list->back()->next(), nullptr);
+  EXPECT_EQ(list->back()->edge(), 0);
 
-//   list->push_front("C", 2);
-//   list->push_front(new EdgeNode<std::string, int>("D", nullptr, 3));
-//   list->push_back(4, "E");
-//   list->push_back(5, new EdgeNode<std::string, int>("F"));
+  list->push_front("C", 2);
+  list->push_front(
+    std::make_shared<EdgeNode<std::string, int>>("D", nullptr, 3));
+  list->push_back(4, "E");
+  list->push_back(5, std::make_shared<EdgeNode<std::string, int>>("F"));
 
-//   std::cout << "list: " << *list << std::endl;
-//   std::cout << "size: " << list->size() << std::endl;
+  EXPECT_EQ(list->size(), 6);
+  EXPECT_EQ(list->front()->label(), "D");
+  EXPECT_EQ(list->front()->edge(), 3);
+  EXPECT_EQ(list->front()->next()->label(), "C");
+  EXPECT_EQ(list->back()->label(), "F");
 
-//   list->pop_front();
-//   list->pop_back();
+  list->pop_front();
+  list->pop_back();
 
-//   std::cout << "list: " << *list << std::endl;
-//   std::cout << "size: " << list->size() << std::endl;
-//   std::cout << "head:" << *list->front() << std::endl;
-//   std::cout << "tail:" << *list->back() << std::endl;
+  EXPECT_EQ(list->size(), 4);
+  EXPECT_EQ(list->front()->label(), "C");
+  EXPECT_EQ(list->front()->edge(), 2);
+  EXPECT_EQ(list->front()->next()->label(), "A");
+  EXPECT_EQ(list->back()->label(), "E");
+  EXPECT_EQ(list->back()->next(), nullptr);
+  EXPECT_EQ(list->back()->edge(), 0);
 
-//   list->insert("G", 6, 100);
-//   list->insert("G", 6, 2);
-//   list->insert(new EdgeNode<std::string, int>("H", nullptr, 7), 4);
+  list->insert("G", 6, 100);
+  list->insert("G", 6, 2);
+  list->insert(std::make_shared<EdgeNode<std::string, int>>("H", nullptr, 7),
+               4);
 
-//   std::cout << "list: " << *list << std::endl;
-//   std::cout << "size: " << list->size() << std::endl;
+  EXPECT_EQ(list->size(), 6);
+  EXPECT_EQ(list->back()->label(), "H");
+  EXPECT_EQ(list->back()->next(), nullptr);
+  EXPECT_EQ(list->back()->edge(), 7);
+  EXPECT_EQ(list->at((size_t)2)->label(), "G");
+  EXPECT_EQ(list->at((size_t)2)->edge(), 6);
+  EXPECT_EQ(list->at((size_t)2)->next()->label(), "B");
 
-//   list->erase(100);
-//   list->erase(3);
-//   std::cout << "list: " << *list << std::endl;
-//   std::cout << "list size: " << list->size() << std::endl;
+  list->erase(100);
+  list->erase(3);
 
-//   std::cout << "edge to node: " << list->edgeTo(node).value() << std::endl;
-//   std::cout << "edge to '(G)':" << list->edgeTo("G").value() << std::endl;
-//   delete list;
-// }
+  EXPECT_EQ(list->size(), 5);
+  EXPECT_EQ(list->at((size_t)2)->next()->label(), "E");
+  EXPECT_EQ(list->at((size_t)3)->label(), "E");
+  EXPECT_EQ(list->at((size_t)3)->edge(), 0);
+  EXPECT_EQ(list->at((size_t)3)->next()->label(), "H");
+
+  auto edgeTo = list->edgeTo(nodeB);
+  EXPECT_FALSE(edgeTo.has_value());
+
+  edgeTo = list->edgeTo("G");
+  EXPECT_TRUE(edgeTo.has_value());
+  EXPECT_EQ(edgeTo.value(), 1);
+
+  delete list;
+}
 
 int main(int argc, char** argv)
 {

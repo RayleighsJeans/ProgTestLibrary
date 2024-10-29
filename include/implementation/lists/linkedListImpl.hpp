@@ -283,117 +283,114 @@ class LinkedList
 };
 
 
-// template <typename LabelType, typename EdgeType>
-// class LinkedEdgeList : public LinkedList<LabelType>
-// {
-//  private:
-//   using L = LabelType;
-//   using E = EdgeType;
+template <typename LabelType, typename EdgeType>
+class LinkedEdgeList : public LinkedList<LabelType>
+{
+ private:
+  using L = LabelType;
+  using E = EdgeType;
 
-//  public:
-//   LinkedEdgeList(EdgeNode<L, E>* head) : LinkedList<L>::LinkedList(head){};
+ public:
+  LinkedEdgeList(std::shared_ptr<EdgeNode<L, E>> node)
+      : LinkedList<L>::LinkedList(node){};
 
-//   LinkedEdgeList(const L& label, const E& edge)
-//       : LinkedEdgeList(new EdgeNode<L, E>(label, nullptr, edge)){};
+  LinkedEdgeList(const L& label, const E& edge)
+      : LinkedEdgeList(
+          std::make_shared<EdgeNode<L, E>>(label, nullptr, edge)){};
 
-//   LinkedEdgeList() : LinkedList<L>::LinkedList(){};
+  LinkedEdgeList() : LinkedList<L>::LinkedList(){};
 
-//   void push_front(const L& value, const E& edge)
-//   {
-//     EdgeNode<L, E>* node = new EdgeNode<L, E>(value, nullptr, edge);
-//     push_front(node);
-//   }
+  void push_front(const L& value, const E& edge)
+  {
+    push_front(std::make_shared<EdgeNode<L, E>>(value, nullptr, edge));
+  }
 
-//   void push_front(EdgeNode<L, E>* node)
-//   {
-//     node->next(static_cast<EdgeNode<L, E>*>(LinkedList<L>::front()),
-//                node->edge());
-//     LinkedList<L>::push_front(node);
-//   }
+  void push_front(std::shared_ptr<EdgeNode<L, E>> node)
+  {
+    LinkedList<L>::push_front(node);
+  }
 
-//   void push_back(const E& edge, const L& value)
-//   {
-//     EdgeNode<L, E>* node = new EdgeNode<L, E>(value);
-//     push_back(edge, node);
-//   }
+  void push_back(const E& edge, const L& value)
+  {
+    push_back(edge, std::make_shared<EdgeNode<L, E>>(value));
+  }
 
-//   void push_back(const E& edge, EdgeNode<L, E>* node)
-//   {
-//     node->next(nullptr, E());
-//     node->edge(E());
-//     static_cast<EdgeNode<L, E>*>(LinkedList<L>::back())->edge(edge);
-//     LinkedList<L>::push_back(node);
-//   }
+  void push_back(const E& edge, std::shared_ptr<EdgeNode<L, E>> node)
+  {
+    back()->edge(edge);
+    LinkedList<L>::push_back(node);
+  }
 
-//   void insert(const L& value, const E& edge, const size_t position)
-//   {
-//     insert(new EdgeNode<L, E>(value, nullptr, edge), position);
-//   }
+  void insert(const L& value, const E& edge, const size_t position)
+  {
+    insert(std::make_shared<EdgeNode<L, E>>(value, nullptr, edge), position);
+  }
 
-//   void insert(EdgeNode<L, E>* node, size_t position)
-//   {
-//     LinkedList<L>::insert(node, position);
-//   }
+  void insert(std::shared_ptr<EdgeNode<L, E>> node, size_t position)
+  {
+    LinkedList<L>::insert(node, position);
+  }
 
-//   void pop_back()
-//   {
-//     EdgeNode<L, E>* tmp = front();
-//     while (tmp->next()->next()) {
-//       tmp = static_cast<EdgeNode<L, E>*>(tmp->next());
-//     }
-//     E edge = tmp->edge();
-//     LinkedList<L>::pop_back();
-//     back()->edge(edge);
-//   }
+  void pop_back()
+  {
+    LinkedList<L>::pop_back();
+    back()->edge(E());
+  }
 
-//   EdgeNode<L, E>* front() const
-//   {
-//     return static_cast<EdgeNode<L, E>*>(LinkedList<L>::front());
-//   }
+  std::shared_ptr<EdgeNode<L, E>> front() const
+  {
+    return std::static_pointer_cast<EdgeNode<L, E>>(LinkedList<L>::front());
+  }
 
-//   EdgeNode<L, E>* back() const
-//   {
-//     return static_cast<EdgeNode<L, E>*>(LinkedList<L>::back());
-//   }
+  std::shared_ptr<EdgeNode<L, E>> back() const
+  {
+    return std::static_pointer_cast<EdgeNode<L, E>>(LinkedList<L>::back());
+  }
 
-//   std::optional<E> edgeTo(EdgeNode<L, E>* toNode) const
-//   {
-//     EdgeNode<L, E>* node = front();
-//     while (node && node->next() && node->next() != toNode)
-//       node = node->next();
+  std::shared_ptr<EdgeNode<L, E>> at(const size_t position) const
+  {
+    return std::static_pointer_cast<EdgeNode<L, E>>(
+      LinkedList<L>::at(position));
+  }
 
-//     if (node->next())
-//       return std::optional<E>(node->edge());
-//     else
-//       return std::nullopt;
-//   }
+  std::optional<E> edgeTo(std::shared_ptr<EdgeNode<L, E>> toNode) const
+  {
+    std::shared_ptr<EdgeNode<L, E>> node(front());
+    while (node && node->next() && node->next() != toNode)
+      node = node->next();
 
-//   std::optional<E> edgeTo(const L& toLabel) const
-//   {
-//     EdgeNode<L, E>* node = front();
-//     while (node && node->next() && node->next()->label() != toLabel)
-//       node = node->next();
+    if (node->next())
+      return std::optional<E>(node->edge());
+    else
+      return std::nullopt;
+  }
 
-//     if (node->next())
-//       return std::optional<E>(node->edge());
-//     else
-//       return std::nullopt;
-//   }
+  std::optional<E> edgeTo(const L& toLabel) const
+  {
+    std::shared_ptr<EdgeNode<L, E>> node(front());
+    while (node && node->next() && node->next()->label() != toLabel)
+      node = node->next();
 
-//   friend std::ostream& operator<<(std::ostream& stream,
-//                                   const LinkedEdgeList<L, E>& list)
-//   {
-//     EdgeNode<L, E>* tmp = list.front();
-//     stream << "[";
-//     while (tmp) {
-//       stream << *tmp;
-//       if (tmp->next()) {
-//         stream << ", ";
-//       }
-//       tmp = tmp->next();
-//     }
-//     stream << "]";
-//     return stream;
-//   }
-// };
+    if (node->next())
+      return std::optional<E>(node->edge());
+    else
+      return std::nullopt;
+  }
+
+  friend std::ostream& operator<<(std::ostream& stream,
+                                  const LinkedEdgeList<L, E>& list)
+  {
+    std::shared_ptr<EdgeNode<L, E>> tmp(list.front());
+    stream << "[";
+    while (tmp) {
+      stream << *tmp;
+      if (tmp->next()) {
+        stream << ", ";
+      }
+      tmp = tmp->next();
+    }
+    stream << "]";
+    return stream;
+  }
+};
 } // namespace linked_lists
