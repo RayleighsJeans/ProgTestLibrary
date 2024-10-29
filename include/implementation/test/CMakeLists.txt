@@ -43,6 +43,32 @@ add_test(
     COMMAND linkedListTest
 )
 
+add_executable(doubleLinkedListTest
+    doubleLinkedListTest.cpp
+    ${TEST_HEADERS}
+)
+target_link_libraries(
+    doubleLinkedListTest
+    GTest::gtest
+    GTest::gtest_main)
+add_test(
+    NAME doubleLinkedListTest
+    COMMAND doubleLinkedListTest
+)
+
+# add_executable(hashTableTest
+#     hashTableTest.cpp
+#     ${TEST_HEADERS}
+# )
+# target_link_libraries(
+#     hashTableTest
+#     GTest::gtest
+#     GTest::gtest_main)
+# add_test(
+#     NAME hashTableTest
+#     COMMAND hashTableTest
+# )
+
 # add_executable(adjacencyTest
 #     adjacencyTest.cpp
 #     ${TEST_HEADERS}

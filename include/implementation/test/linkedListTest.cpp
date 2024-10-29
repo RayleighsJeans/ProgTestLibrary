@@ -9,8 +9,8 @@ using namespace linked_lists;
 class TestEnvironment : public ::testing::Environment
 {
  public:
-  TestEnvironment(){};
-  ~TestEnvironment() override{};
+  TestEnvironment() {};
+  ~TestEnvironment() override {};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -18,12 +18,11 @@ class TestEnvironment : public ::testing::Environment
 class TestPrimer : public ::testing::Test
 {
  protected:
-  TestPrimer(){};
-  ~TestPrimer() override{};
+  TestPrimer() {};
+  ~TestPrimer() override {};
   void SetUp() override {}
   void TearDown() override {}
 };
-
 
 TEST_F(TestPrimer, LinkedListTest)
 {

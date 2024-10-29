@@ -6,7 +6,7 @@
 #include <string.h>
 
 
-#define CAPACITY 50000 // Size of the HashTable.
+#include "../lists/linkedListImpl.hpp"
 
 
 // Defines the table item.
@@ -17,18 +17,6 @@ struct HashTableItem
   Value* value;
 };
 
-
-unsigned long hash_function(char* str)
-{
-  unsigned long i = 0;
-
-  for (int j = 0; str[j]; j++)
-    i += str[j];
-
-  return i % CAPACITY;
-}
-
-
 template <typename K, typename V>
 struct LinkedList
 {
@@ -36,7 +24,6 @@ struct LinkedList
   HashTableItem<K, V>* item;
   LinkedList* next;
 };
-
 
 template <typename K, typename V>
 struct DoubleLinkedList
@@ -50,10 +37,12 @@ struct DoubleLinkedList
 
 namespace hash_tables
 {
-template <typename Key, typename Value>
+template <size_t Size, typename Key, typename Value>
 class HashedTable
 {
  private:
+  std::function<unsigned long(char*)> m_hasher;
+
   // Defines the table.
   struct Table
   {
@@ -63,13 +52,8 @@ class HashedTable
     int size;
     int count;
   };
-
-
- private:
   Table* m_table;
 
-
- private:
   void free_table(Table* table)
   {
     // Frees the table.
@@ -86,7 +70,6 @@ class HashedTable
     free(table);
   };
 
-
   void free_item(HashTableItem<Key, Value>* item)
   {
     // Frees an item.
@@ -94,7 +77,6 @@ class HashedTable
     free(item->value);
     free(item);
   };
-
 
   HashTableItem<Key, Value>* create_item(Key* key, Value* value)
   {
@@ -107,7 +89,6 @@ class HashedTable
     strcpy(item->value, value);
     return item;
   };
-
 
   LinkedList<Key, Value>* allocate_list()
   {
@@ -149,7 +130,6 @@ class HashedTable
     return list;
   }
 
-
   HashTableItem<Key, Value>* linkedlist_remove(LinkedList<Key, Value>* list)
   {
     // Removes the head from the LinkedList.
@@ -186,7 +166,6 @@ class HashedTable
     }
   }
 
-
   LinkedList<Key, Value>** create_overflow_buckets()
   {
     // Create the overflow buckets; an array of LinkedLists.
@@ -208,8 +187,10 @@ class HashedTable
     free(buckets);
   }
 
-
  public:
+  HashedTable(const std::function<unsigned long(char*)>& hashFunction)
+      : m_hasher(hashFunction) {};
+
   HashedTable(int size)
   {
     // Creates a new HashTable.
@@ -227,8 +208,6 @@ class HashedTable
 
   ~HashedTable() { free_table(m_table); };
 
-
- public:
   void insert(Key* key, Value* value)
   {
     // Creates the item.
@@ -264,7 +243,6 @@ class HashedTable
     }
   }
 
-
   Value* search(Key* key)
   {
     // Searches for the key in the HashTable.
@@ -287,7 +265,6 @@ class HashedTable
 
     return NULL;
   }
-
 
   void remove(Key* key)
   {
@@ -373,7 +350,6 @@ class HashedTable
       return;
     }
   }
-
 
   void find(Key* key)
   {

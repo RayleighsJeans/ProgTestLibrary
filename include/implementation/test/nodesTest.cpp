@@ -9,8 +9,8 @@ using namespace linked_lists;
 class TestEnvironment : public ::testing::Environment
 {
  public:
-  TestEnvironment(){};
-  ~TestEnvironment() override{};
+  TestEnvironment() {};
+  ~TestEnvironment() override {};
   void SetUp() override {}
   void TearDown() override {}
 };
@@ -18,12 +18,11 @@ class TestEnvironment : public ::testing::Environment
 class TestPrimer : public ::testing::Test
 {
  protected:
-  TestPrimer(){};
-  ~TestPrimer() override{};
+  TestPrimer() {};
+  ~TestPrimer() override {};
   void SetUp() override {}
   void TearDown() override {}
 };
-
 
 TEST_F(TestPrimer, EmptyNodeTest)
 {
@@ -119,6 +118,16 @@ TEST_F(TestPrimer, EdgeNodeTest)
   EXPECT_EQ(finalNode.edge(), 25);
   EXPECT_EQ(finalNode.next()->next()->label(), "burn");
   EXPECT_EQ(finalNode.next()->edge(), 30);
+}
+
+TEST_F(TestPrimer, DoubleNodeTest)
+{
+  std::shared_ptr<DoubleNode<int>> nodeC =
+    std::make_shared<DoubleNode<int>>(12);
+  std::shared_ptr<DoubleNode<int>> nodeB = std::make_shared<DoubleNode<int>>(
+    11, std::make_shared<DoubleNode<int>>(13), nullptr);
+  std::shared_ptr<DoubleNode<int>> nodeA =
+    std::make_shared<DoubleNode<int>>(10, nodeB, nodeC);
 }
 
 int main(int argc, char** argv)
