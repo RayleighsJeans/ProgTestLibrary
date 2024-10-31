@@ -5,6 +5,7 @@
 
 #include <map>
 #include <vector>
+#include <algorithm>
 
 #include <iostream>
 
@@ -42,7 +43,7 @@ class RandomGenerator
         m_maximumValue(max),
         m_randomDistribution(RandomDistribution<T>(min, max)),
         m_binaryDistribution(RandomDistribution<int>(0, 1)),
-        m_generator(std::mt19937((std::random_device())())){};
+        m_generator(std::mt19937((std::random_device())())) {};
 
   /// @brief dtor.
   ~RandomGenerator() = default;
@@ -279,5 +280,5 @@ class RandomGenerator
     std::map<int, bool> map;
     randomUniqueVector(map, vector, randDist);
   } // randomUniqueVector
-};  // class RandomGenerator
+}; // class RandomGenerator
 } // namespace helper

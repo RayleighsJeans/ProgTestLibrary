@@ -3,7 +3,7 @@
 
 #include <chrono>
 #include <iostream>
-#include <vector>
+#include <list>
 
 namespace helper
 {
@@ -16,6 +16,10 @@ class Timer
   using time = std::chrono::high_resolution_clock::time_point;
   using clock = std::chrono::high_resolution_clock;
 
+  /// @brief The starting point (in time).
+  time m_tick;
+  /// @brief List of the stopped timers/lap times.
+  std::list<time> m_tocks;
 
  public:
   /// @brief ctor. Start the timer.
@@ -30,14 +34,17 @@ class Timer
   void tick() { m_tick = clock::now(); };
 
   /// @brief Measure the timer and remember the 'lap time'.
-  void tock()
+  void tock(const bool debug = true)
   {
     m_tocks.push_back(clock::now());
-    double duration = std::chrono::duration<double, std::milli>(
-                        std::chrono::duration_cast<std::chrono::milliseconds>(
-                          m_tocks.back() - m_tick))
-                        .count();
-    std::cout << ">> time past: " << duration << "ms;\n";
+
+    if (debug) {
+      double duration = std::chrono::duration<double, std::milli>(
+                          std::chrono::duration_cast<std::chrono::milliseconds>(
+                            m_tocks.back() - m_tick))
+                          .count();
+      std::cout << ">> time past: " << duration << "ms;\n";
+    }
   } // tock
 
   /// @brief Get the last timed section.
@@ -50,10 +57,14 @@ class Timer
               .count());
   } // elapsed
 
- private:
-  /// @brief The starting point (in time).
-  time m_tick;
-  /// @brief List of the stopped timers/lap times.
-  std::vector<time> m_tocks;
+  /// @brief Get the time since creation.
+  /// @return Last elapsed total time (high precision clock milliseconds).
+  double timeSinceStart() const
+  {
+    return (std::chrono::duration<double, std::milli>(
+              std::chrono::duration_cast<std::chrono::milliseconds>(
+                m_tocks.back() - m_tocks.front()))
+              .count());
+  } // timeSinceStart
 }; // class Timer
 } // namespace helper
