@@ -1,10 +1,10 @@
 #pragma once
 
 
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 #include <assert.h>
 #include <cstring>
@@ -22,6 +22,8 @@ template <typename PacketType>
 class SimpleServer
 {
  private:
+  size_t m_counter = 0;
+
   int m_serverSocket = -1;
   int m_clientSocket = -1;
 
@@ -34,59 +36,47 @@ class SimpleServer
  public:
   SimpleServer(const unsigned int msTimeout = 10000) : m_msTimeOut(msTimeout)
   {
-    OUT;
-
     m_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     assert("Error opening socket." && m_serverSocket != -1);
-
-    OUT;
 
     m_address.sin_family = AF_INET;
     m_address.sin_addr.s_addr = INADDR_ANY;
     m_address.sin_port = htons(8080);
 
-    OUT;
-
     assert("Error binding socket." &&
            bind(m_serverSocket, (struct sockaddr*)&m_address,
                 sizeof(m_address)) != -1);
 
-    OUT;
-
     listen(m_serverSocket, 1);
 
-    OUT;
-
     m_clientSocket = accept(m_serverSocket, NULL, NULL);
-    OUT;
-
     fcntl(m_clientSocket, F_SETFL, O_NONBLOCK);
-    OUT;
-
     memset(m_buffer, 0, sizeof(m_buffer));
-
-    OUT;
   }
 
-  ~SimpleServer() { close(m_serverSocket); };
+  ~SimpleServer()
+  {
+    std::cout << "Packets received: " << m_counter << std::endl;
+    close(m_serverSocket);
+  };
 
   void start()
   {
-    OUT;
     helper::Timer clock;
     clock.tick();
-    OUT;
 
     while ((unsigned int)clock.timeSinceStart() < m_msTimeOut) {
-      // OUT;
-      //  std::cout << clock.elapsed() << std::endl;
       memset(m_buffer, 0, sizeof(m_buffer));
       recv(m_clientSocket, m_buffer, sizeof(m_buffer), 0);
+
       if (m_buffer[0] != 0) {
-        std::cout << "Message from client: ";
+        m_counter++;
+        std::cout << "Packet from client: ";
         for (const PacketType& entry : m_buffer)
           std::cout << entry << " ";
+        std::cout << std::endl;
       }
+
       clock.tock(false);
     }
   }
